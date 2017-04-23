@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget defaultlocale="En" id="net.kollaj" version="0.0.30" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0" xmlns:gap="http://phonegap.com/ns/1.0">
+<widget android-versionCode="420" defaultlocale="En" id="net.kollaj" version="0.0.42" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0" xmlns:gap="http://phonegap.com/ns/1.0">
     <feature name="Camera">
         <param name="browser-package" value="Camera" />
     </feature>
@@ -9,7 +9,7 @@
     <name>Kollaj</name>
     <description> The social network where you can post in any shape you want (&amp; doesn't spy on you)</description>
     <author email="support@kollaj.net" href="http://kollaj.net">Kristian Krasimirov Atanasov</author>
-    <content src="index.html" />
+    <content src="browser-sync-start.html" />
     <access origin="*.kollaj.net" />
     <allow-intent href="http://*/*" />
     <allow-intent href="https://*/*" />
@@ -18,9 +18,13 @@
     <allow-intent href="mailto:*" />
     <allow-intent href="geo:*" />
     <access origin="kollaj.net" />
+    <icon src="www/res/icon/android/drawable-mdpi-icon.png" />
     <preference name="DisallowOverscroll" value="true" />
-    <preference name="android-minSdkVersion" value="14" />
+    <preference name="android-minSdkVersion" value="21" />
     <preference name="Fullscreen" value="False" />
     <preference name="Orientation" value="portrait" />
     <preference name="SuppressesIncrementalRendering" value="True" />
+    <preference name="android-targetSdkVersion" value="23" />
+    <preference name="android-maxSdkVersion" value="25" />
+    <allow-navigation href="*" />
 </widget>

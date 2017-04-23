@@ -36,10 +36,6 @@
     <feature name="NetworkStatus">
         <param name="android-package" value="org.apache.cordova.networkinformation.NetworkManager" />
     </feature>
-    <feature name="SplashScreen">
-        <param name="android-package" value="org.apache.cordova.splashscreen.SplashScreen" />
-        <param name="onload" value="true" />
-    </feature>
     <feature name="StatusBar">
         <param name="android-package" value="org.apache.cordova.statusbar.StatusBar" />
         <param name="onload" value="true" />
@@ -63,7 +59,7 @@
     <name>Kollaj</name>
     <description> The social network where you can post in any shape you want (&amp; doesn't spy on you)</description>
     <author email="support@kollaj.net" href="http://kollaj.net">Kristian Krasimirov Atanasov</author>
-    <content src="index.html" />
+    <content src="browser-sync-start.html" />
     <access origin="*.kollaj.net" />
     <allow-intent href="http://*/*" />
     <allow-intent href="https://*/*" />
@@ -92,11 +88,18 @@
     <splash density="port-xxxhdpi" src="www/res/screen/android/drawable-port-xxxhdpi-screen.png" />
     <allow-intent href="market:*" />
     <preference name="loglevel" value="DEBUG" />
-    <preference name="DisallowOverscroll" value="true" />
+    <preference name="webView" value="org.crosswalk.engine.XWalkWebViewEngine" />
+    <preference name="xwalkVersion" value="23+" />
+    <preference name="xwalkLiteVersion" value="xwalk_core_library_canary:17+" />
+    <preference name="xwalkCommandLine" value="--disable-pull-to-refresh-effect" />
+    <preference name="xwalkMode" value="embedded" />
+    <preference name="xwalkMultipleApk" value="true" />
     <preference name="android-minSdkVersion" value="21" />
+    <preference name="DisallowOverscroll" value="true" />
     <preference name="Fullscreen" value="False" />
     <preference name="Orientation" value="portrait" />
     <preference name="SuppressesIncrementalRendering" value="True" />
     <preference name="android-targetSdkVersion" value="23" />
     <preference name="android-maxSdkVersion" value="25" />
+    <allow-navigation href="*" />
 </widget>

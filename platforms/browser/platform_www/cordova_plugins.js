@@ -355,20 +355,6 @@ module.exports = [
         "runs": true
     },
     {
-        "file": "plugins/cordova-plugin-splashscreen/www/splashscreen.js",
-        "id": "cordova-plugin-splashscreen.SplashScreen",
-        "pluginId": "cordova-plugin-splashscreen",
-        "clobbers": [
-            "navigator.splashscreen"
-        ]
-    },
-    {
-        "file": "plugins/cordova-plugin-splashscreen/src/browser/SplashScreenProxy.js",
-        "id": "cordova-plugin-splashscreen.SplashScreenProxy",
-        "pluginId": "cordova-plugin-splashscreen",
-        "runs": true
-    },
-    {
         "file": "plugins/cordova-plugin-statusbar/www/statusbar.js",
         "id": "cordova-plugin-statusbar.statusbar",
         "pluginId": "cordova-plugin-statusbar",
@@ -582,23 +568,6 @@ module.exports = [
         ]
     },
     {
-        "file": "plugins/cordova-admob/www/admob.js",
-        "id": "cordova-admob.AdMobAds",
-        "pluginId": "cordova-admob",
-        "clobbers": [
-            "window.admob",
-            "window.tappx"
-        ]
-    },
-    {
-        "file": "plugins/cordova-connectivity-monitor/www/connectivity.js",
-        "id": "cordova-connectivity-monitor.connectivity",
-        "pluginId": "cordova-connectivity-monitor",
-        "clobbers": [
-            "window.connectivity"
-        ]
-    },
-    {
         "file": "plugins/cordova-plugin-admobpro/www/AdMob.js",
         "id": "cordova-plugin-admobpro.AdMob",
         "pluginId": "cordova-plugin-admobpro",
@@ -610,6 +579,7 @@ module.exports = [
 module.exports.metadata = 
 // TOP OF METADATA
 {
+    "cordova-libgoogleadmobads": "7.13.1",
     "cordova-plugin-battery-status": "1.1.2",
     "cordova-plugin-camera": "2.1.1",
     "cordova-plugin-console": "1.0.5",
@@ -623,17 +593,15 @@ module.exports.metadata =
     "cordova-plugin-media": "2.2.0",
     "cordova-plugin-media-capture": "1.2.0",
     "cordova-plugin-network-information": "1.2.1",
-    "cordova-plugin-splashscreen": "3.2.2",
     "cordova-plugin-statusbar": "2.1.3",
     "cordova-plugin-vibration": "2.1.3",
     "cordova-plugin-whitelist": "1.2.2",
+    "cordova-plugin-browsersync": "0.1.1",
     "cordova-plugin-compat": "1.1.0",
     "cordova-plugin-file": "4.3.1",
-    "cordova-admob": "4.1.16",
-    "cordova-connectivity-monitor": "1.2.2",
-    "cordova-libgoogleadmobads": "7.13.1",
+    "cordova-plugin-extension": "1.5.1",
     "cordova-plugin-admobpro": "2.28.3",
-    "cordova-plugin-extension": "1.5.1"
+    "cordova-plugin-crosswalk-webview": "2.3.0"
 }
 // BOTTOM OF METADATA
 });

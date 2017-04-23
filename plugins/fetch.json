@@ -119,14 +119,6 @@
         "is_top_level": true,
         "variables": {}
     },
-    "cordova-plugin-splashscreen": {
-        "source": {
-            "type": "registry",
-            "id": "cordova-plugin-splashscreen@~3.2.1"
-        },
-        "is_top_level": true,
-        "variables": {}
-    },
     "cordova-plugin-statusbar": {
         "source": {
             "type": "registry",
@@ -167,20 +159,36 @@
         "is_top_level": true,
         "variables": {}
     },
-    "cordova-plugin-admobpro": {
-        "source": {
-            "type": "registry",
-            "id": "cordova-plugin-admobpro"
-        },
-        "is_top_level": true,
-        "variables": {}
-    },
     "cordova-plugin-extension": {
         "source": {
             "type": "registry",
             "id": "cordova-plugin-extension"
         },
         "is_top_level": false,
+        "variables": {}
+    },
+    "cordova-plugin-browsersync": {
+        "source": {
+            "type": "registry",
+            "id": "cordova-plugin-browsersync"
+        },
+        "is_top_level": true,
+        "variables": {}
+    },
+    "cordova-plugin-admobpro": {
+        "source": {
+            "type": "registry",
+            "id": "cordova-plugin-admobpro@2.28.3"
+        },
+        "is_top_level": true,
+        "variables": {}
+    },
+    "cordova-plugin-crosswalk-webview": {
+        "source": {
+            "type": "registry",
+            "id": "cordova-plugin-crosswalk-webview@2.3.0"
+        },
+        "is_top_level": true,
         "variables": {}
     }
 }
