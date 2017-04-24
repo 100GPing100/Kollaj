@@ -1,7 +1,7 @@
 <?php
 //====================================================
-// Copyright (c) 2017 Kristian Atanasov
-// Copyright (c) 2017 Luís Guimarã
+// Copyright (c) 2016-2017 Kristian Atanasov
+// Copyright (c) 2017 Luís Guimarães
 //
 // errors:
 //   whatAreYouDoingHere    : no data was given
@@ -81,7 +81,49 @@ function kollaj_query($query) {
 }
 
 function kollaj_checklogin($username, $deviceUUID, $deviceModel, $devicePlatform, $tracker) {
-    
+    $result = kollaj_query("
+        SELECT * FROM users
+        WHERE userName='$username'
+    ");
+
+    if ($result->num_rows == 0) {
+        $result->free();
+        kollaj_error("dontTalkToStrangers");
+    }
+
+    $row            = $result->fetch_assoc();
+    $userID         = $row["ID"];
+    $kollajDistance = $row["kollajDistance"];
+
+    $result->free();
+    $result = kollaj_query("
+        SELECT * FROM register
+        WHERE uid='$userID'
+        AND devUid='$deviceUUID'
+        AND devVer='$deviceModel'
+        AND devPlatform='$devicePlatform'
+        AND uniID='$tracker'
+    ");
+
+    if ($result->num_rows == 0) {
+        $result->free();
+        kollaj_error("noCookiesForYou");
+    }
+
+    $result->free();
+    $newTracker = md5($deviceUUID . "" . rand());
+
+    kollaj_query("
+        UPDATE register SET uniID='$newTracker'
+        WHERE uid='$userID'
+        AND uniID='$tracker'
+    ");
+
+    return array(
+        "ID" => $userID,
+        "kollajDistance" => $kollajDistance,
+        "tracker" => $newTracker,
+    );
 }
 
 
