@@ -51,6 +51,8 @@ var app = {
             $('time.timeago').timeago();
         });
 
+        window.localStorage.setItem("iAlreadyGotMyPermission", 0);
+
         if (window.localStorage.getItem("loggedAs") !== null) {
             kollaj_autologin(
                 window.localStorage.getItem("loggedAs"),
