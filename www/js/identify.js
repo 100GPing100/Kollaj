@@ -19,6 +19,7 @@ function identify(arr) {
         }
         //registrationQuery
         if (obj.loginQuery == "imLettingYaOnLogin") {
+            console.log("wtf am I doing here?");
             window.localStorage.setItem("loginQuery", "pass")
             window.localStorage.setItem("loggedAs", obj.loginUser);
             window.localStorage.setItem("tracker", obj.tracker);
