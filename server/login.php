@@ -45,16 +45,16 @@ if ($data["canYou"] == "letMeIn") {
     $devicePlatform = killDaHackerz($data["devPlatform"]);
     $tracker        = md5($deviceUUID . "" . rand());
 
-    kollaj_query(
-        "INSERT INTO register (uid, ip, devUid, devVer, devPlatform, uniID) " .
-        "VALUES (" .
-            "'{$user['ID']}', " .
-            "'$_SERVER[REMOTE_ADDR]', " .
-            "'$deviceUUID', " .
-            "'$deviceModel', " .
-            "'$devicePlatform', " .
-            "'$tracker'" .
-        ")");
+    kollaj_query("
+        INSERT INTO register (uid, ip, devUid, devVer, devPlatform, uniID)
+        VALUES(
+            '{$user["ID"]}',
+            '{$_SERVER["REMOTE_ADDR"]}',
+            '$deviceUUID',
+            '$deviceModel',
+            '$devicePlatform',
+            '$tracker')
+    ");
 
     kollaj_finish(array(
         "success" => 1,
