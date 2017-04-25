@@ -44,7 +44,6 @@ var app = {
         var vTimeOut;
 
         window.localStorage.setItem("roffset", 0);
-        window.localStorage.setItem("iAlreadyGotMyPermission", 0);
         window.localStorage.setItem("modal", 0);
 
         var emailSecondPass = 0;
@@ -52,6 +51,27 @@ var app = {
         // function identify(arr) -> identify.js
 
         //REGULAR SHITS HERE
+
+        identify({
+            canYou: "giveMeMyStats",
+            myName: window.localStorage.getItem("loggedAs"),
+            tracker: window.localStorage.getItem("tracker"),
+            uuid: device.uuid,
+            devModel: device.version,
+            devPlatform: device.platform,
+        });
+
+        identify({
+            canYou: "showMeMyFeed",
+            myName: window.localStorage.getItem("loggedAs"),
+            tracker: window.localStorage.getItem("tracker"),
+            uuid: device.uuid,
+            devModel: device.version,
+            devPlatform: device.platform,
+            roffset: 0,
+        });
+
+        window.localStorage.setItem("iAlreadyGotMyPermission", 1);
 
 
         var h = $(window).height(),
