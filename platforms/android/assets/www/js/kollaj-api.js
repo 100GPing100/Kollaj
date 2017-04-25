@@ -37,7 +37,7 @@ function kollaj_register(email, username, password, callback) {
         canYou:     "makeMeDumpInstagram",
         email:      email,
         username:   username,
-        password:   password,
+        password:   keccak_384(password),
     }, callback);
 }
 

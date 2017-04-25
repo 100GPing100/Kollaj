@@ -48,8 +48,8 @@ if ($data["canYou"] == "letMeIn") {
     kollaj_query("
         INSERT INTO register (uid, ip, devUid, devVer, devPlatform, uniID)
         VALUES(
-            '{$user["ID"]}',
-            '{$_SERVER["REMOTE_ADDR"]}',
+            '{$user['ID']}',
+            '$_SERVER[REMOTE_ADDR]',
             '$deviceUUID',
             '$deviceModel',
             '$devicePlatform',

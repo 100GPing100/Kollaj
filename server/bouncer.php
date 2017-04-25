@@ -310,6 +310,7 @@ else {
           if(mysqli_num_rows($result) == 1 )
             {//everything checked out, let them in
               $userID = $drow['ID'];
+              $trackerWeWant = $drow["uniID"];
               $loginName = $drow['userName'];
               $kollajDistance =$drow['kollajDistance'];
               $query = "SELECT * FROM register WHERE uid='$userID' AND devUid = '$uuid' AND devVer = '$dModel' AND devPlatform = '$devPlatform' AND uniID = '$tracker' ";
@@ -358,6 +359,11 @@ else {
                     "success" => 1,
                     "loginQuery" => "noCookiesForYou",
                     "reasoning"=>2
+                );
+                $array = array(
+                    "success" => 1,
+                    "loginQuery" => "noCookiesForYou",
+                    "reasoning"=> "$tracker < tracker u gave me || tracker I need > $trackerWeWant"
                 );
               }
             }

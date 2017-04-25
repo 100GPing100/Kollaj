@@ -17,18 +17,49 @@ function identify(arr) {
         } else if (obj.uname == "pass") {
             window.localStorage.setItem("unamePass", "pass");
         }
-        //registrationQuery
-        if (obj.loginQuery == "imLettingYaOnLogin") {
-            console.log("wtf am I doing here?");
+        //loginQuery
+        if (obj.loginQuery == "noCookiesForYou") {
+            // kollaj doesnt use cookies, but saying noCookiesForYou = not logged in!
+            window.localStorage.setItem("loginQuery", "nah");
+            window.localStorage.setItem("loggedAs", "");
+            window.localStorage.setItem("tracker", "trackingYou");
+
+            window.location.replace("login.html");
+        } else if (obj.loginQuery == "imLettingYa") {
+            // if the server says imLettingYa, the client happily obeys its master
+            window.localStorage.setItem("loginQuery", "pass")
+            window.localStorage.setItem("loggedAs", obj.loginUser);
+            window.localStorage.setItem("tracker", obj.tracker);
+            window.localStorage.setItem("kollajDistance", obj.kollajDistance);
+            // sets loggedAs and a Tracker
+            //removes the login container from view
+            if (window.localStorage.getItem("iAlreadyGotMyPermission") == 0) {
+                //and if this is the first logIn of the user
+                var arr1 = { canYou: "giveMeMyStats", myName: window.localStorage.getItem("loggedAs"), tracker: window.localStorage.getItem("tracker"), uuid: device.uuid, devModel: device.version, devPlatform: device.platform }
+                identify(arr1);
+                // requests the stats
+                var arr = { canYou: "showMeMyFeed", myName: window.localStorage.getItem("loggedAs"), tracker: window.localStorage.getItem("tracker"), uuid: device.uuid, devModel: device.version, devPlatform: device.platform, roffset: 0 };
+                identify(arr);
+                // requests a feed
+                window.localStorage.setItem("iAlreadyGotMyPermission", 1);
+                // and we let it know it's got a permission to enjoy kollaj
+            }
+        } else if (obj.loginQuery == "imLettingYaOnLogin") {
+            //imLettingYaOnLogin only is given by the server if we ask the server canYou:makeSureMeIsNotMiniMe
+            // used on automated login with loggedAs and a tracker in localStorage
+            // doesnt work perfectly so we still gotta ask the server to deliver us a feed & stats though.
+
             window.localStorage.setItem("loginQuery", "pass")
             window.localStorage.setItem("loggedAs", obj.loginUser);
             window.localStorage.setItem("tracker", obj.tracker);
             window.localStorage.setItem("kollajDistance", obj.kollajDistance);
             var arr1 = { canYou: "giveMeMyStats", myName: window.localStorage.getItem("loggedAs"), tracker: window.localStorage.getItem("tracker"), uuid: device.uuid, devModel: device.version, devPlatform: device.platform }
             identify(arr1);
+            $("#loginContainer").css({ "display": "none" });
             var arr = { canYou: "showMeMyFeed", myName: window.localStorage.getItem("loggedAs"), tracker: window.localStorage.getItem("tracker"), uuid: device.uuid, devModel: device.version, devPlatform: device.platform, roffset: 0 };
             identify(arr);
             window.localStorage.setItem("iAlreadyGotMyPermission", 1);
+            // same as above
         }
 
         if (typeof obj.bye != "undefined") {
