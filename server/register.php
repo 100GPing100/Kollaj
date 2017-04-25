@@ -65,8 +65,8 @@ if ($data["canYou"] == "emailCheck") {
     // errors
     //   howDidYaGetHere    : username/email already taken
     //   <init-api-errors>
-    $username = killDaHackerz($data["username"]);
     $email    = killDaHackerz($data["email"]);
+    $username = killDaHackerz($data["username"]);
 
     // check if already registered
     $result = kollaj_query("
