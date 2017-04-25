@@ -3029,7 +3029,100 @@ if ($data["canYou"] == "makeMeDiscoverPpz")
 
 //register into kollaj
 
-  
+  if ($data["canYou"] == "makeMeDumpInstagram")
+  {
+    $username = killDaHackerz($data["myName"]);
+    $email = killDaHackerz($data["myMail"]);
+    $password = password_hash(killDaHackerz($data["myPass"]), PASSWORD_DEFAULT);
+    $uuid = killDaHackerz($data["devUuid"]);
+    $dModel = killDaHackerz($data["devModel"]);
+    $devPlatform = killDaHackerz($data["devPlatform"]);
+
+    $sql="SELECT userName FROM users WHERE userName='$username'";
+    $result=mysqli_query($db,$sql);
+    $row=mysqli_fetch_array($result,MYSQLI_ASSOC);
+      if(mysqli_num_rows($result) == 1)
+      {//we got the username in the DB, he's got here some awkward way, but we just ignore him
+        $array = array(
+            "success" => 1,
+            "uname" => "gotTheSame",
+            "registrationQuery" => "sameUname",
+        );
+      }
+    else
+      {
+        $sql="SELECT email FROM users WHERE email='$email'";
+        $result=mysqli_query($db,$sql);
+        $row=mysqli_fetch_array($result,MYSQLI_ASSOC);
+          if(mysqli_num_rows($result) == 1)
+          {//users trying to submit, in an awkward manner, an email thats in the db already,  just ignore him
+            $array = array(
+                "success" => 1,
+                "email" => "gotTheSame",
+                "registrationQuery" => "sameEmail",
+            );
+          }
+        else
+          {
+            //we got somewhere, the user is not doing awkward stuff, & stuff seems valid
+            //so we go ahead, and insert him/her into the DB
+            $query = mysqli_query($db, "INSERT INTO users (userName, email, passHash)VALUES ('$username', '$email', '$password')");
+            if($query)
+            {
+              $sessId = md5($uuid."".rand());
+              $query = mysqli_query($db, "INSERT INTO register (ip, devUid, devVer, devPlatform, uniID)
+              VALUES ('$_SERVER[REMOTE_ADDR]', '$uuid', '$dModel', '$devPlatform', '$sessId')");
+              if($query)
+              {
+                $rid = mysqli_insert_id($db);
+
+
+                $sql="SELECT * FROM users WHERE userName='$username'";
+                $result2=mysqli_query($db,$sql);
+                $drow=mysqli_fetch_assoc($result2);
+                $uid = $drow['ID'];
+
+                $sql = mysqli_query($db,"UPDATE register SET uid='$uid' WHERE id = '$rid' AND uniID = '$sessId'");
+
+                $srcPath = 'rImgs/';
+                $destPath = 'uploads/';
+
+                $readFile = rand(0,24).".jpg";
+                $newFile = md5($uid.$readFile).".jpg";
+
+                $srcDir = opendir($srcPath);
+
+                if(copy($srcPath . $readFile, $destPath . $newFile))
+                {
+                }
+                else
+                {
+                    echo "Canot Copy file";
+                }
+
+                closedir($srcDir); // good idea to always close your handles
+
+                $query = mysqli_query($db, "INSERT INTO post (uid, imgpath, imgH, imgW, imgX, imgY, mask1, mask2, angle, scale, tx, ty, special)VALUES ('$uid', '$newFile', '397', '705', '44.1', '160.99', 'M 44.1 160.9 L 749.8 160.9 749.8 558 398.4 558 44.1 160.9 Z', 'M 44.1 160.9 L 749.8 160.9 749.8 160.9 396.5 558 44.1 558 Z', '0', '1.1854855445575602', '0', '-510', '1')");
+                $query = mysqli_query($db, "INSERT INTO chats (sid, rid)VALUES ('42', '$uid')");
+                $lines = explode("\n", file_get_contents('quotes.txt'));
+                $line = killDaHackerz($lines[mt_rand(0, count($lines) - 1)]);
+                $query = mysqli_query($db, "INSERT INTO inbox (sid, rid, msg)VALUES ('42', '$uid', '$line')");
+                $query = mysqli_query($db, "INSERT INTO outbox (sid, rid, msg)VALUES ('42', '$uid', '$line')");
+
+                $notificationQ = mysqli_query($db, "INSERT INTO notification (contact_ID, friend_ID, notifText, notifType, action, actionTo)VALUES ('1', '$uid', 'Aloha, and feel at home <3 !', '1', '1', 'SpaceWalkingNinja')");
+
+                $array = array(
+                    "success" => 1,
+                    "registrationQuery" => "success",
+                    "newUsername" => $username,
+                    "tracker" => $sessId,
+                    "kollajDistance" => 0
+                );
+              }
+            }
+          }
+      }
+  }
 
 
 
@@ -3047,6 +3140,122 @@ if ($data["canYou"] == "makeMeDiscoverPpz")
   http://stackoverflow.com/questions/5285388/mysql-check-if-username-and-password-matches-in-database
   thx to "ArrayOutOfBound"
   */
+
+  if ($data["canYou"] == "letMeIn")
+  {
+    $username = killDaHackerz($data["myName"]);
+    $password = killDaHackerz($data["myPass"]);
+    $uuid = killDaHackerz($data["devUuid"]);
+    $dModel = killDaHackerz($data["devModel"]);
+    $devPlatform = killDaHackerz($data["devPlatform"]);
+    $sql="SELECT * FROM users WHERE userName='$username'";
+    $resA = mysqli_query($db,$sql);
+    $drow=mysqli_fetch_assoc($resA);
+    $userPassHash = $drow['passHash'];
+
+    if ($username == "" || $password == "")
+    {
+      $array = array(
+          "success" => 1,
+          "loginQuery" => "noCookiesForYou",
+          "loginUser" => $username
+      );
+        echo (json_encode($array));
+        die();
+    }
+    else
+      {
+        $sql="SELECT * FROM users WHERE userName='$username'";
+        $result=mysqli_query($db,$sql);
+        $row=mysqli_fetch_array($result,MYSQLI_ASSOC);
+        $result2=mysqli_query($db,$sql);
+        $drow=mysqli_fetch_assoc($result2);
+        //$sql="SELECT * FROM users WHERE userName='$username' and passHash='$password'";
+        //$result2=mysqli_query($db,$sql);
+        //$drow=mysqli_fetch_assoc($result2);
+        //$userID = $drow['ID'];
+        //
+
+        if(password_verify($password, $userPassHash))
+          {//everything checked out, let them in
+            $sessId = md5($uuid."".rand());
+            $userID = $drow['ID'];
+            $loginName = $drow['userName'];
+            $kollajDistance = $drow['kollajDistance'];
+            $query = mysqli_query($db, "INSERT INTO register (uid, ip, devUid, devVer, devPlatform, uniID)
+            VALUES ('$userID', '$_SERVER[REMOTE_ADDR]', '$uuid', '$dModel', '$devPlatform', '$sessId')");
+            if($query)
+            {
+              $array = array(
+                  "success" => 1,
+                  "loginQuery" => "imLettingYa",
+                  "loginUser" => $loginName,
+                  "tracker" => $sessId,
+                  "kollajDistance" => $kollajDistance
+              );
+            }
+          }
+        else
+          {//naaaaaaaaaaaaah no cookies for you
+            $array = array(
+                "success" => 1,
+                "loginQuery" => "noCookiesForYou",
+            );
+          }
+      }
+  }
+
+  if ($data["canYou"] == "makeSureMeIsNotMiniMe")
+  {//make sure user is logged in, with current device, autologin/logout
+    $username = killDaHackerz($data["myName"]);
+    $uuid = killDaHackerz($data["devUuid"]);
+    $dModel = killDaHackerz($data["devModel"]);
+    $devPlatform = killDaHackerz($data["devPlatform"]);
+    $tracker = killDaHackerz($data["tracker"]);
+
+        $sql="SELECT * FROM users WHERE userName='$username'";
+        $result=mysqli_query($db,$sql);
+        $row=mysqli_fetch_array($result,MYSQLI_ASSOC);
+        $result2=mysqli_query($db,$sql);
+        $drow=mysqli_fetch_assoc($result2);
+        if(mysqli_num_rows($result) == 1 )
+          {//everything checked out, let them in
+            $userID = $drow['ID'];
+            $loginName = $drow['userName'];
+            $kollajDistance =$drow['kollajDistance'];
+            $query = "SELECT * FROM register WHERE uid='$userID' AND devUid = '$uuid' AND devVer = '$dModel' AND devPlatform = '$devPlatform' AND uniID = '$tracker' ";
+            $result=mysqli_query($db,$query);
+            $row=mysqli_fetch_array($result,MYSQLI_ASSOC);
+            if(mysqli_num_rows($result) == 1 )
+            {
+              $sessId = md5($uuid."".rand());
+              $sql = "UPDATE register SET uniID='$sessId' WHERE uid = '$userID' AND uniID = '$tracker'";
+              $result=mysqli_query($db,$sql);
+
+              $array = array(
+                  "success" => 1,
+                  "loginQuery" => "imLettingYaOnLogin",
+                  "loginUser" => $loginName,
+                  "tracker" => $sessId,
+                  "kollajDistance" => $kollajDistance
+              );
+            }
+            else {
+              $array = array(
+                  "success" => 1,
+                  "loginQuery" => "noCookiesForYou",
+              );
+            }
+          }
+        else
+          {//naaaaaaaaaaaaah no cookies for you
+            $array = array(
+                "success" => 1,
+                "loginQuery" => "noCookiesForYou",
+            );
+          }
+
+  }
 
 
   echo (json_encode($array));
