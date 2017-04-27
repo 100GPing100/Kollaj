@@ -98,11 +98,11 @@
     <preference name="xwalkCommandLine" value="--disable-pull-to-refresh-effect" />
     <preference name="xwalkMode" value="embedded" />
     <preference name="xwalkMultipleApk" value="true" />
-    <preference name="android-minSdkVersion" value="21" />
     <preference name="DisallowOverscroll" value="true" />
+    <preference name="android-minSdkVersion" value="16" />
     <preference name="Fullscreen" value="False" />
     <preference name="Orientation" value="portrait" />
     <preference name="SuppressesIncrementalRendering" value="True" />
-    <preference name="android-targetSdkVersion" value="23" />
+    <preference name="android-targetSdkVersion" value="16" />
     <preference name="android-maxSdkVersion" value="25" />
 </widget>

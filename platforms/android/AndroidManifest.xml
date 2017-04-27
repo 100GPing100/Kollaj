@@ -11,7 +11,7 @@
         </activity>
         <activity android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize" android:name="com.google.android.gms.ads.AdActivity" android:theme="@android:style/Theme.Translucent" />
     </application>
-    <uses-sdk android:maxSdkVersion="25" android:minSdkVersion="21" android:targetSdkVersion="23" />
+    <uses-sdk android:maxSdkVersion="25" android:minSdkVersion="16" android:targetSdkVersion="16" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />

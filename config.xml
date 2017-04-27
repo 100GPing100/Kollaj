@@ -5,7 +5,7 @@
     <author email="support@kollaj.net" href="http://kollaj.net">Kristian Krasimirov Atanasov</author>
     <content src="index.html" />
     <preference name="DisallowOverscroll" value="true" />
-    <preference name="android-minSdkVersion" value="21" />
+    <preference name="android-minSdkVersion" value="16" />
     <plugin name="cordova-plugin-battery-status" source="npm" spec="~1.1.1" />
     <plugin name="cordova-plugin-camera" source="npm" spec="~2.1.1" />
     <plugin name="cordova-plugin-media-capture" source="npm" spec="~1.2.0" />
@@ -118,7 +118,7 @@
     <preference name="Orientation" value="portrait" />
     <access origin="kollaj.net" />
     <preference name="SuppressesIncrementalRendering" value="True" />
-    <preference name="android-targetSdkVersion" value="23" />
+    <preference name="android-targetSdkVersion" value="16" />
     <preference name="android-maxSdkVersion" value="25" />
     <engine name="android" spec="~6.1.2" />
 </widget>
