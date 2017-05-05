@@ -1,5 +1,5 @@
 //====================================================
-// Copyright (c) 2017 Kristian Atanasov
+// Copyright (c) 2016-2017 Kristian Atanasov
 // Copyright (c) 2017 Luís Guimarães
 
 function kollaj_request(where, arr, callback) {

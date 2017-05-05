@@ -574,6 +574,14 @@ module.exports = [
         "clobbers": [
             "window.AdMob"
         ]
+    },
+    {
+        "file": "plugins/cordova-plugin-firebase/www/firebase-browser.js",
+        "id": "cordova-plugin-firebase.FirebasePlugin",
+        "pluginId": "cordova-plugin-firebase",
+        "clobbers": [
+            "FirebasePlugin"
+        ]
     }
 ];
 module.exports.metadata = 
@@ -601,7 +609,8 @@ module.exports.metadata =
     "cordova-plugin-file": "4.3.1",
     "cordova-plugin-extension": "1.5.1",
     "cordova-plugin-admobpro": "2.28.3",
-    "cordova-plugin-crosswalk-webview": "2.3.0"
+    "cordova-plugin-crosswalk-webview": "2.3.0",
+    "cordova-plugin-firebase": "0.1.20"
 }
 // BOTTOM OF METADATA
 });

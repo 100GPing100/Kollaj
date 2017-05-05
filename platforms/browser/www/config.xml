@@ -9,7 +9,7 @@
     <name>Kollaj</name>
     <description> The social network where you can post in any shape you want (&amp; doesn't spy on you)</description>
     <author email="support@kollaj.net" href="http://kollaj.net">Kristian Krasimirov Atanasov</author>
-    <content src="index.html" />
+    <content src="login.html" />
     <access origin="*.kollaj.net" />
     <allow-intent href="http://*/*" />
     <allow-intent href="https://*/*" />
@@ -20,10 +20,10 @@
     <access origin="kollaj.net" />
     <icon src="www/res/icon/android/drawable-mdpi-icon.png" />
     <preference name="DisallowOverscroll" value="true" />
-    <preference name="android-minSdkVersion" value="21" />
+    <preference name="android-minSdkVersion" value="16" />
     <preference name="Fullscreen" value="False" />
     <preference name="Orientation" value="portrait" />
     <preference name="SuppressesIncrementalRendering" value="True" />
-    <preference name="android-targetSdkVersion" value="23" />
+    <preference name="android-targetSdkVersion" value="16" />
     <preference name="android-maxSdkVersion" value="25" />
 </widget>

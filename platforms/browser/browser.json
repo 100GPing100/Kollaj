@@ -90,6 +90,9 @@
         },
         "cordova-plugin-crosswalk-webview": {
             "PACKAGE_NAME": "net.kollaj"
+        },
+        "cordova-plugin-firebase": {
+            "PACKAGE_NAME": "net.kollaj"
         }
     },
     "dependent_plugins": {},
@@ -668,6 +671,14 @@
             "clobbers": [
                 "window.AdMob"
             ]
+        },
+        {
+            "file": "plugins/cordova-plugin-firebase/www/firebase-browser.js",
+            "id": "cordova-plugin-firebase.FirebasePlugin",
+            "pluginId": "cordova-plugin-firebase",
+            "clobbers": [
+                "FirebasePlugin"
+            ]
         }
     ],
     "plugin_metadata": {
@@ -693,6 +704,7 @@
         "cordova-plugin-file": "4.3.1",
         "cordova-plugin-extension": "1.5.1",
         "cordova-plugin-admobpro": "2.28.3",
-        "cordova-plugin-crosswalk-webview": "2.3.0"
+        "cordova-plugin-crosswalk-webview": "2.3.0",
+        "cordova-plugin-firebase": "0.1.20"
     }
 }

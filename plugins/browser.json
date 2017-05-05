@@ -66,6 +66,9 @@
         },
         "cordova-plugin-crosswalk-webview": {
             "PACKAGE_NAME": "net.kollaj"
+        },
+        "cordova-plugin-firebase": {
+            "PACKAGE_NAME": "net.kollaj"
         }
     },
     "dependent_plugins": {

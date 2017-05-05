@@ -33,6 +33,12 @@ var app = {
     // The scope of 'this' is the event. In order to call the 'receivedEvent'
     // function, we must explicitly call 'app.receivedEvent(...);'
     onDeviceReady: function () {
+        window.FirebasePlugin.onNotificationOpen((notification) => {
+            console.log(notification);
+        }, (error) => {
+            console.error(error);
+        });
+
         app.receivedEvent('deviceready');
 
         //        admob.initAdmob("ca-app-pub-5520633259009545/7928666319","ca-app-pub-5520633259009545/7928666319");
@@ -1335,80 +1341,90 @@ var app = {
             var cordx = new Array;
             var cordy = new Array;
             var cordI = new Array;
+            var finalGroup = new Array;
             var i = 0;
             var lasTopDis = 0;
             function welderEmbeddedSP(ih, iw, ix, iy, iURI, m1, m2, ang, scl, itx, ity) {
-                var OHght = window.localStorage.getItem("originalHeight");
-                var myImg = s.image(iURI, ix, iy, iw, ih);
-                var mask1 = s.path(m1).attr({ fill: "white" });
-                var mask2 = s.path(m2).attr({ fill: "white" });
-                var maskGroups = s.group()
+              var OHght = window.localStorage.getItem("originalHeight");
+              var myImg = s.image(iURI, ix, iy, iw, ih);
+              var mask1 = s.path(m1).attr({ fill: "white" });
+              var mask2 = s.path(m2).attr({ fill: "white" });
+              var maskGroups = s.group()
 
-                maskGroups.add(mask1);
-                maskGroups.attr({ fill: "white" });
+              mask1.attr({ fill: "white" });
+              mask2.attr({ fill: "white" });
 
-                finalGroup = s.group(maskGroups, myImg);
+              mask2.attr({ clipPath: mask1});
 
-                myImg.attr({ mask: maskGroups })
-                maskGroups.attr({ mask: mask2 });
+              myImg.attr({ clipPath : mask2 });
+              finalGroup[i] = s.group(myImg);
+              console.log("alo!")
 
-                maxWidth = width - (width / 9);
-                scaleF = maxWidth / iw;
-                lftDis = itx * scaleF;
-                topDis = ity * scaleF;
-                absXCenter = (width / 2);
-                absYCenter = (OHght / 2);
+              maxWidth = width - (width / 9);
+              scaleF = maxWidth / iw;
+              lftDis = itx * scaleF;
+              topDis = ity * scaleF;
+              absXCenter = (width / 2);
+              absYCenter = (OHght / 2);
 
-                if (lasTopDis < topDis) {
-                    lasTopDis = topDis;
-                }
+              if (lasTopDis < topDis) {
+                  lasTopDis = topDis
+              }
+              var bb = finalGroup[i].getBBox();
+              var diffX = absXCenter - bb.cx;
+              var diffY = absYCenter - bb.cy;
 
-                var bb = finalGroup.getBBox();
-                var diffX = absXCenter - bb.cx;
-                var diffY = absYCenter - bb.cy;
+              finalGroup[i].transform('T' + diffX + ',' + diffY + 'S' + scaleF + 'R0');
 
-                finalGroup.transform('T' + diffX + ',' + diffY + 'S' + scaleF + 'R0');
+              moveGroup = s.group(finalGroup[i]).attr({ style: "border:3px solid white" });
+              //          console.log("first move, follow secondmove");
 
-                moveGroup = s.group(finalGroup).attr({ style: "border:3px solid white" });
-                //          console.log("first move, follow secondmove");
-                moveGroup.transform('t' + lftDis + ',' + topDis + 's' + scl + 'r' + ang);
+              //          console.log("in place!?");
+              moveGroup.transform('t' + lftDis + ',' + topDis + 's' + scl + 'r' + ang);
+              if (i == 0) {
+                  moveGroup.remove()
+                  //console.log("aro!");
+                  //    document.getElementById("whereuputurppic").innerHTML = "";
+                  $("#whereuputurppic").css({ "background-image": 'url("' + iURI + '")' });
+              }
+              if (i > 0) {
+                  var bb = moveGroup.getBBox();
+                  cordx.push(bb.cx);
+                  cordy.push(bb.cy);
 
-                if (i == obj.seeRes.length - 1) {
+                  iname = iURI.substring(iURI.lastIndexOf('/') + 1);
+                  cordI.push(iname);
+                  moveGroup.data({ "data-img": (iURI.substr(iURI.lastIndexOf('/') + 1)) });
+                  moveGroup.click(
+                      function () {
+                          window.localStorage.setItem('history', 'profile');
+                          bringInThePostSeeWindow(this.data("data-img"));
+                      }
+                  );
+              }
+
+              if (i == arr.length - 1) {
                     nH = parseInt(lasTopDis) + 780;
-                    window.localStorage.setItem("profileSVGHeight", nH);
-                    $("#profileSVG").css({ "height": nH + "px" });
-                    //console.log("puttint it @"+nH);
-                    if (i > 13) {
-                        var textSm = s.text(30, (lasTopDis + 400), "click to load more..");
-                        textSm.attr({
-                            'font-size': "1.5rem",
-                            'stroke': 'white',
-                            'strokeWidth': 1,
-                            'id': "loadMoreSProfile"
-                        });
-                        $("#loadMoreSProfile").click(function () {
-                            var arr = { canYou: "showMeSomeProfile", myName: window.localStorage.getItem("loggedAs"), seeProfile: obj.seeing, tracker: window.localStorage.getItem("tracker"), uuid: device.uuid, devModel: device.version, devPlatform: device.platform, proffset: obj.proffset };
-                            identify(arr);
-                        });
+                  $("#profileSVG").css({ "height": nH + "px" });
+                  window.localStorage.setItem("profileSVGHeight", nH);
+                  //console.log("puttint it @"+nH);
+                  if (i > 13) {
 
-                    }
-                }
+                      var text = s.text(30, (lasTopDis + 400), "click to load more..");
+                      text.attr({
+                          'font-size': "1.5rem",
+                          'stroke': 'white',
+                          'strokeWidth': 1,
+                          'id': "loadMoreMProfile"
+                      });
+                      $("#loadMoreMProfile").click(function () {
 
-                /*
-                moveGroup.click(function(evt){
-                pt.x = evt.clientX;
-                pt.y = evt.clientY;
-                console.log(pt.x + "\n"+pt.y )
-                /                  seekProfile = $(this).data("uname");
-                $("#profileName").html("@"+seekProfile);
-                var arr = {canYou:"showMeSomeProfile", myName:window.localStorage.getItem("loggedAs"), seeProfile: seekProfile, tracker: window.localStorage.getItem("tracker"), uuid: device.uuid, devModel: device.version, devPlatform:device.platform};
-                identify(arr);
-                $("#profile").css({"display":"block"});
-                /
-                console.log(this.data("img"));
-                return false;
-                });
-                */
+                          var arr = { canYou: "showMeSomeProfile", myName: window.localStorage.getItem("loggedAs"), seeProfile: obj.seeing, tracker: window.localStorage.getItem("tracker"), uuid: device.uuid, devModel: device.version, devPlatform: device.platform, proffset: window.localStorage.getItem("mproffset") };
+                          identify(arr);
+
+                      });
+                  }
+              }
 
                 if (i == 0) {
                     moveGroup.remove()
@@ -1437,10 +1453,6 @@ var app = {
                 }
 
                 if (iw > 0) { sprivate = 0; }
-                if (sprivate < 1) {
-                    text.remove();
-                    text2.remove();
-                }
                 //          console.log("in place!?");
 
                 return false;
@@ -1449,28 +1461,12 @@ var app = {
 
             for (i in arr) {
                 welderEmbeddedSP(arr[i].imgH, arr[i].imgW, arr[i].imgX, arr[i].imgY, arr[i].imgpath, arr[i].mask1, arr[i].mask2, arr[i].angle, arr[i].scale, arr[i].tx, arr[i].ty);
+                if(arr[i].imgW > 0)
+                {
+                  text.remove();
+                  text2.remove();
+                }
             }
-            commentsPoint = new Array;
-            for (n in cordx) {
-                commentsPoint[n] = s.circle(cordx[n], cordy[n], 25).attr({ fill: "rgba(255,255,255, 0.05)" });
-                commentsPoint[n].attr({
-                    stroke: "rgba(255,255, 255,0.4)",
-                    strokeWidth: 2,
-                    strokeDasharray: 4
-                })
-                commentsPoint[n].attr({ "data-img": cordI[n] });
-                commentsPoint[n].attr({ "id": "profileCommPtL" + n })
-                commentsPoint[n].click(
-                    function () {
-                        window.localStorage.setItem("history", "smProfile");
-                        bringInThePostSeeWindow(this.attr("data-img"));
-                    }
-                );
-            }
-
-
-
-
 
             var myNewHeight = window.localStorage.getItem("profileSVGHeight");
 
@@ -1479,8 +1475,11 @@ var app = {
             }
 
             //console.log ("got here but"+ myNewHeight+"px aint enough OR, sprivate is "+sprivate);
+            var $profileSVG = $("#profileSVG");
+            $profileSVG.css({ "height": myNewHeight + "px" });
+            $("#profile").animate({ scrollTop: myNewHeight });
 
-            $("#profileSVG").css({ "height": myNewHeight + "px" });
+
 
         }
 
@@ -1670,7 +1669,7 @@ var app = {
             $modal
                 .removeClass('state-appear')
                 .removeClass('state-leave');
-            
+
             messageState = $('#msg').is(':hidden') ? 0 : 1;
             notificationState = $('#vibes').is(':hidden') ? 0 : 1;
             chatState = $('#chat').is(':visible') ? 1 : 0;
@@ -1839,7 +1838,7 @@ var app = {
                         visibility: 'visible',
                         opacity: 1,
                     });
-                
+
                 $('#otherOptions, #detailsWindow')
                     .css('display', 'none');
 
@@ -1858,13 +1857,13 @@ var app = {
                     visibility: 'hidden',
                     opacity: 0,
                 });
-                
+
                 $('#detailsWindow')
                     .css('display', 'none');
-                
+
                 $('#otherOptions')
                     .toggle();
-                
+
                 $('#mySvg')
                     .css('visibility', 'hidden');
             }
@@ -1977,7 +1976,8 @@ var app = {
                     //and then pass it to the Hobbit :) (ref ==>) http://codepen.io/spacewalkingninja/full/yVwqWQ/
                     bringinTheEditor(imageData, this.width, this.height);
                 }
-                img.src = imageData;
+                img.src="img/ALIEN_INVASION.jpg"
+                //img.src = imageData;
 
             }
 
@@ -2016,7 +2016,7 @@ var app = {
             if (notificationState == 1) { $("#vibes").toggle() };
             if (chatState == 1) { $("#chat").css({ "display": "none" }); $(".chatbox").css({ "display": "none" }) };
             if (takePictureState == 1) { $("#takePicture").css({ "display": "none" }); };
-
+            console.log("aloha!");
 
             window.localStorage.setItem("mproffset", 0);
 
@@ -2070,6 +2070,7 @@ var app = {
                     var cordx = new Array;
                     var cordy = new Array;
                     var cordI = new Array;
+                    var finalGroup = new Array;
                     function welderEmbeddedMP(ih, iw, ix, iy, iURI, m1, m2, ang, scl, itx, ity) {
                         var OHght = window.localStorage.getItem("originalHeight");
                         var myImg = s.image(iURI, ix, iy, iw, ih);
@@ -2077,13 +2078,14 @@ var app = {
                         var mask2 = s.path(m2).attr({ fill: "white" });
                         var maskGroups = s.group()
 
-                        maskGroups.add(mask1);
-                        maskGroups.attr({ fill: "white" });
+                        mask1.attr({ fill: "white" });
+                        mask2.attr({ fill: "white" });
 
-                        finalGroup = s.group(maskGroups, myImg);
+                        mask2.attr({ clipPath: mask1});
 
-                        myImg.attr({ mask: maskGroups })
-                        maskGroups.attr({ mask: mask2 });
+                        myImg.attr({ clipPath : mask2 });
+                        finalGroup[i] = s.group(myImg);
+                        console.log("alo!")
 
                         maxWidth = width - (width / 9);
                         scaleF = maxWidth / iw;
@@ -2095,13 +2097,13 @@ var app = {
                         if (lasTopDis < topDis) {
                             lasTopDis = topDis
                         }
-                        var bb = finalGroup.getBBox();
+                        var bb = finalGroup[i].getBBox();
                         var diffX = absXCenter - bb.cx;
                         var diffY = absYCenter - bb.cy;
 
-                        finalGroup.transform('T' + diffX + ',' + diffY + 'S' + scaleF + 'R0');
+                        finalGroup[i].transform('T' + diffX + ',' + diffY + 'S' + scaleF + 'R0');
 
-                        moveGroup = s.group(finalGroup).attr({ style: "border:3px solid white" });
+                        moveGroup = s.group(finalGroup[i]).attr({ style: "border:3px solid white" });
                         //          console.log("first move, follow secondmove");
 
                         //          console.log("in place!?");
@@ -2119,6 +2121,13 @@ var app = {
 
                             iname = iURI.substring(iURI.lastIndexOf('/') + 1);
                             cordI.push(iname);
+                            moveGroup.data({ "data-img": (iURI.substr(iURI.lastIndexOf('/') + 1)) });
+                            moveGroup.click(
+                                function () {
+                                    window.localStorage.setItem('history', 'profile');
+                                    bringInThePostSeeWindow(this.data("data-img"));
+                                }
+                            );
                         }
 
                         if (i == resultData.length - 1) {
@@ -2148,28 +2157,16 @@ var app = {
                     }
 
                     for (i in arr) {
+
                         window.localStorage.setItem("mproffset", arr[i].proffset);
                         welderEmbeddedMP(arr[i].imgH, arr[i].imgW, arr[i].imgX, arr[i].imgY, arr[i].imgpath, arr[i].mask1, arr[i].mask2, arr[i].angle, arr[i].scale, arr[i].tx, arr[i].ty);
                     }
-                    commentsPoint = new Array;
-                    for (n in cordx) {
 
-                        commentsPoint[n] = s.circle(cordx[n], cordy[n], 25).attr({ fill: "rgba(255,255,255, 0.05)" });
-                        commentsPoint[n].attr({
-                            stroke: "rgba(255,255, 255,0.4)",
-                            strokeWidth: 2,
-                            strokeDasharray: 4
-                        })
-
-                        commentsPoint[n].attr({ "data-img": cordI[n] });
-                        commentsPoint[n].attr({ "id": "profileCommPtL" + n })
-                        commentsPoint[n].click(
-                            function () {
-                                window.localStorage.setItem('history', 'profile');
-                                bringInThePostSeeWindow(this.attr("data-img"));
-                            }
-                        );
-                    }
+                    var myNewHeight = window.localStorage.getItem("profileSVGHeight");
+                    //console.log ("got here but"+ myNewHeight+"px aint enough OR, sprivate is "+sprivate);
+                    var $profileSVG = $("#profileSVG");
+                    $profileSVG.css({ "height": myNewHeight + "px" });
+                    $("#profile").animate({ scrollTop: myNewHeight });
 
 
                 }
@@ -2608,6 +2605,7 @@ var app = {
             window.localStorage.setItem("photoSrcUndo", photoSrc);
             window.localStorage.setItem("photoCWidthUndo", cWidth);
             window.localStorage.setItem("photoCHeightUndo", cWidth);
+            window.localStorage.setItem("moveMode", 0);
 
             $("#header").css({ "display": "none" });
             $("#mainNav").css({ "visibility": "hidden" });
@@ -2623,418 +2621,1138 @@ var app = {
 
             var s = Snap("#mySvg");
 
-            var width = document.getElementById("mySvg").clientWidth;
-            var actualHeight = document.getElementById("mySvg").clientHeight;
-            var height = parseInt(window.localStorage.getItem("originalHeight"));
-            var maxWidth = width - (width / 9); // Max width for the image
-            var maxHeight = height - (height * 0.3); // Max height for the image
-            var ratio = 0; // Used for aspect ratio
-            var imgWidth = cWidth; // Current image width
-            var imgHeight = cHeight; // Current image height
-            if (width > maxWidth) {
+
+            //btw Gotta set a localStorageItem
+            // cause... if not now, when?
+            window.localStorage.setItem("firstUse", 1);
+
+            //and another, we use it to check if user is cutting or deleting
+            window.localStorage.setItem("usableCut", 0);
+
+            window.localStorage.setItem("cuts", 0);
+
+            window.localStorage.setItem("editorPath1", "");
+            window.localStorage.setItem("editorPath2", "");
+            window.localStorage.setItem("editorPath3", "");
+
+            function calcDistance(x1, y1, x2, y2) {
+              return Math.sqrt(Math.pow((x1 - x2), 2) + Math.pow((y1 - y2), 2));
+            }
+
+            function gridGen(wWidth, wHeight, s, colorA, colorB) {
+              function isEven(n) {
+                return n == parseFloat(n) ? !(n % 2) : void 0;
+              }
+
+              thirdWidth = wWidth / 6;
+              vl = new Array;
+              for (i = 1; i < 6; i++) {
+                if (isEven(i)) {
+                  color = colorA;
+                  sW = 2;
+                } else {
+                  color = colorB;
+                  sW = 1;
+                }
+                x1 = thirdWidth * i
+                y1 = 0
+                x2 = thirdWidth * i
+                y2 = wHeight;
+                vl[i] = s.line(x1, 0, thirdWidth * i, wHeight).attr({
+                  strokeWidth: sW,
+                  stroke: color,
+                  strokeLinecap: "round"
+                })
+              }
+              hl = new Array;
+              for (i = 1; i < 10; i++) {
+                if (isEven(i)) {
+                  color = colorA;
+                  sW = 2;
+                } else {
+                  color = colorB;
+                  sW = 1;
+                }
+                x1 = 0;
+                y1 = thirdWidth * i;
+                x2 = wWidth;
+                y2 = thirdWidth * i;
+                hl[i] = s.line(x1, y1, x2, y2).attr({
+                  strokeWidth: sW,
+                  stroke: color
+                })
+              }
+            }
+
+
+
+
+
+
+            /*
+            *********************
+            *********************
+            SLIDERS&CHECKBOXES STUFF
+            *********************
+            *********************
+            */
+
+            function styleMyRanger(county, ranger, polisher, overdrive, revolver) {
+              var p = document.getElementById(ranger),
+                res = document.getElementById(polisher);
+
+              p.addEventListener("input", function() {
+                function isInt(value) {
+                  return !isNaN(value) && (function(x) {
+                    return (x | 0) === x;
+                  })(parseFloat(value))
+                }
+
+                thing = (p.value / 10);
+                max = (p.max / 10);
+
+                if ((thing == max || thing == -max) && overdrive > 0) {
+                  if (p.value > 0) {
+                    thing = thing.toString().substring(0, 3)
+                    $("#" + county + " .overDrive .switchDesc").html("it goes up to 11");
+                  } else {
+                    thing = thing.toString().substring(0, 4)
+                    $("#" + county + " .overDrive .switchDesc").html("it goes down to -11");
+                  }
+                  $("#" + county + " .overDrive").slideDown()
+                } else if (thing > 0) {
+                  thing = thing.toString().substring(0, 3);
+                  $("#" + county + " .overDrive").slideUp()
+                } else if (thing < 0) {
+                  thing = thing.toString().substring(0, 4);
+                  $("#" + county + " .overDrive").slideUp()
+                }
+
+                if (ranger == "vibrance") {
+                  var vibez = parseInt(p.value);
+                  thing = vibez / 4;
+                  thing = thing.toString();
+                  if (isInt(thing)) {
+                    thing = thing;
+                  } else {
+                    thing = thing.substring(0, thing.indexOf('.'));
+                  }
+                }
+
+                if (ranger == "temperature") {
+
+                  var temp = parseInt(p.value);
+                  if (temp < 1 && temp > 0) {
+                    temp = 1;
+                  }
+                  thing = temp + ((temp * temp) / 10000);
+                  thing = thing.toString();
+
+                  if (isInt(thing)) {
+                    thing = thing;
+                  } else {
+                    thing = thing.substring(0, thing.indexOf('.'));
+                  }
+                  thing = thing + "K";
+                }
+                res.innerHTML = thing;
+                //  applyFilters();
+
+              }, false);
+
+              $("#" + revolver).change(
+                function() {
+
+                  thing = base / 10;
+                  if (this.checked) {} else {
+                    $("#" + ranger).val(p.max);
+                    //console.log(p.value)
+                  }
+                });
+
+            }
+
+            $('.rang').on({
+              mousedown: function() {
+                $('#percent').addClass('active');
+              },
+
+              mouseup: function() {
+                $('#percent').removeClass('active');
+              }
+            });
+
+            styleMyRanger("tabs-1", "exposure", "percent", 0, "switch-1");
+            styleMyRanger("tabs-2", "vibrance", "percent", 0, "switch-2");
+            styleMyRanger("tabs-3", "contrast", "percent", 0, "switch-2");
+            styleMyRanger("tabs-4", "saturation", "percent", 0, "switch-3");
+            styleMyRanger("tabs-5", "temperature", "percent", 0, "switch-4");
+            styleMyRanger("tabs-6", "vignette", "percent", 0, "switch-5");
+            /*
+            *********************
+            *********************
+            CAMANJS
+            *********************
+            *********************
+            */
+
+            /*
+            *******
+            ******
+            FILTERS FIRST
+            ******
+            *******
+            */
+
+            Caman.prototype.colorTemperatureToRgb = function(temp) {
+              var m = window.Math;
+              temp /= 100;
+              var r, g, b;
+
+              if (temp <= 66) {
+                r = 255;
+                g = m.min(m.max(99.4708025861 * m.log(temp) - 161.1195681661, 0), 255);
+              } else {
+                r = m.min(m.max(329.698727446 * m.pow(temp - 60, -0.1332047592), 0), 255);
+                g = m.min(m.max(288.1221695283 * m.pow(temp - 60, -0.0755148492), 0), 255);
+              }
+
+              if (temp >= 66) {
+                b = 255;
+              } else if (temp <= 19) {
+                b = 0;
+              } else {
+                b = temp - 10;
+                b = m.min(m.max(138.5177312231 * m.log(b) - 305.0447927307, 0), 255);
+              }
+
+              return {
+                r: r,
+                g: g,
+                b: b
+              }
+            };
+
+            var whiteBalance = function(pixel, color) {
+              pixel.r = pixel.r * (255 / color.r);
+              pixel.g = pixel.g * (255 / color.g);
+              pixel.b = pixel.b * (255 / color.b);
+
+              return pixel;
+            };
+
+            Caman.Filter.register('whiteBalance', function(colorTemperature) {
+              var rgbColor = this.colorTemperatureToRgb(colorTemperature);
+
+              return this.process('whiteBalance', function(pixel) {
+                return whiteBalance(pixel, rgbColor);
+              });
+            });
+
+            Caman.Filter.register('whiteBalanceRgb', function(rgbColor) {
+              return this.process('whiteBalanceRgb', function(pixel) {
+                return whiteBalance(pixel, rgbColor);
+              });
+            });
+
+            /****************
+            **************
+            *************
+            FILTERS END
+
+            ***********/
+
+            //$(function() {
+
+              /*var canvas = document.getElementById('canvas');
+              var ctx = canvas.getContext('2d');
+            */
+
+
+
+              var s = Snap("#mySvg");
+
+
+                              /*adding canvas for the full Image */
+                              var canvasFullImg = document.getElementById('fullImg');
+                              var ctxFullImg = canvasFullImg.getContext('2d');
+
+                              /* Enable Cross Origin Image Editing */
+                              var dataURL = "0";
+                              var IMG = 0;
+                              var IMGEdit = 0;
+                              var editDataURL = "0";
+
+
+
+
+                              //IMPORTANT, HAVE TO CHANGE THIS!
+                              var img = new Image();
+                              img.crossOrigin = '';
+                              img.src="img/ALIEN_INVASION.jpg"
+                            var width, height;
+                              img.onload = function() {
+
+              //s.attr({ viewBox: "250 0 200 200" });
+              //s.attr({ viewBox: "0 0 400 400" });
+              //Crossbrowser window Width
+              var width = document.getElementById("mySvg").clientWidth;
+              //Crossbrowser window Height
+              //  var height = document.getElementById("mySvg").clientHeight;
+              //thats what we used before, we now gonna use localStorage
+              var height = window.localStorage.getItem("originalHeight")
+
+              var maxWidth = width - (width / 9); // Max width for the image
+              var maxHeight = height - (height * 0.3); // Max height for the image
+              var ratio = 0; // Used for aspect ratio
+              var imgWidth = img.width; // Current image width
+              var imgHeight = img.height; // Current image height
+
+              // Check if the current width is larger than the max
+              if (width > maxWidth) {
                 ratio = maxWidth / imgWidth; // get ratio for scaling image
                 imgHeight = imgHeight * ratio; // Reset height to match scaled image
                 imgWidth = imgWidth * ratio; // Reset width to match scaled image
-            }
-            if (imgHeight > maxHeight) {
+              }
+              // Check if current height is larger than max
+              if (imgHeight > maxHeight) {
                 ratio = maxHeight / imgHeight; // get ratio for scaling image
                 imgWidth = imgWidth * ratio; // Reset width to match scaled image
                 imgHeight = imgHeight * ratio; // Reset height to match scaled image
-            }
-            var ixCenter = parseInt((width - imgWidth) / 2);
-            var iyCenter = parseInt((height - imgHeight) / 2);
-            gridGen(width, height, actualHeight, s, "CornflowerBlue", "MediumTurquoise");
-            var myImg = s.image(photoSrc, ixCenter, iyCenter, imgWidth, imgHeight).attr({ id: "editImg" });
+              }
 
-            var imgCorner = [];
-            var ixCorner = [];
-            var iyCorner = [];
-            var imgHandle = [];
-            ixCorner[0] = ixCenter;
-            ixCorner[1] = imgWidth + ixCenter;
-            ixCorner[2] = imgWidth + ixCenter;
-            ixCorner[3] = ixCenter;
+              //image X & Y centered
+              // so this actually defines X1 & Y1
+              var ixCenter = (width - imgWidth) / 2;
+              var iyCenter = (height - imgHeight) / 2;
 
-            iyCorner[0] = iyCenter;
-            iyCorner[1] = iyCenter;
-            iyCorner[2] = iyCenter + imgHeight;
-            iyCorner[3] = iyCenter + imgHeight;
+                //put the grid in the thing
+              gridGen(width, height, s, "CornflowerBlue", "MediumTurquoise");
 
-            var imgCx = ixCorner[0] + (imgWidth / 2);
-            var imgCy = iyCorner[0] + (imgHeight / 2);
+              //we put, after the grid, the help text
+              if (window.localStorage.getItem("firstUse") == 1) {
+                var helpie = s.text({
+                    text: ["Draw a line from one side ", "to the other, so you can cut it!"]
+                  })
+                  .attr({
+                    fill: "black",
+                    fontSize: "18px"
+                  })
+                  .selectAll("tspan").forEach(function(tspan, i) {
+                    tspan.attr({
+                      x: width * 0.05,
+                      y: (height * 0.05) * (i + 1),
+                      id: "txt" + i
+                    });
+                  });
+                helpie.attr({
+                  'font-size': 20
+                });
+              }
 
-            var centerPoint = s.circle(imgCx, imgCy, 10).attr({ fill: "rgba(250,89,152, 0)" });
-            imgHandle[0] = s.circle(ixCenter, iyCenter, 10).attr({ fill: "rgba(59,89,152, 1)" });
-            imgHandle[1] = s.circle(imgWidth + ixCenter, iyCenter, 10).attr({ fill: "rgba(59,89,152, 1)" });
-            imgHandle[2] = s.circle(imgWidth + ixCenter, iyCenter + imgHeight, 10).attr({ fill: "rgba(59,89,152, 1)" });
-            imgHandle[3] = s.circle(ixCenter, iyCenter + imgHeight, 10).attr({ fill: "rgba(59,89,152, 1)" });
 
-            var myLine = [];
-            var touches = 0;
-            var touchCuts = 0 //this should be better than the touches counter to count the actual cuts only
-            var imgMask = []; //our mask paths
-            var maskGroups = s.group();
-            var m = 0; //our mask counter
-            var myMaskFrag = []; //our mask fragments
-            var maskColor = "white"; //this is our mask color, we can change it here globally
+              //and define the image
+                //canvas.width = width;
+                //canvas.height = height;
+                /* Full width canvas */
 
-            $("#mySvg").css({ "position": "static" });
-            $("#editorHolder").css({ "overflow-y": "hidden" });
+
+
+                canvasFullImg.width = img.width;
+                canvasFullImg.height = img.height;
+
+                //ctx.drawImage(img, 0, 0, width, height);
+                ctxFullImg.drawImage(img, 0, 0, img.width, img.height);
+
+
+                dataURL = canvasFullImg.toDataURL("base64Img");
+                myImg = s.image(img.src, ixCenter, iyCenter, imgWidth, imgHeight).attr({id: "dropped"});
+
+                /*myImg = s.image(dataURL, iCenter, yCenter, width, height).attr({
+                id: "editImg"
+              });
+                */
+
+
+
+              // gonna use to also define the undo>
+
+              var myUndo = s.image("data:image/svg+xml;utf8;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMSI/Pgo8IS0tIEdlbmVyYXRvcjogQWRvYmUgSWxsdXN0cmF0b3IgMTYuMC4wLCBTVkcgRXhwb3J0IFBsdWctSW4gLiBTVkcgVmVyc2lvbjogNi4wMCBCdWlsZCAwKSAgLS0+CjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+CjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgdmVyc2lvbj0iMS4xIiBpZD0iQ2FwYV8xIiB4PSIwcHgiIHk9IjBweCIgd2lkdGg9IjUxMnB4IiBoZWlnaHQ9IjUxMnB4IiB2aWV3Qm94PSIwIDAgNjEyIDYxMiIgc3R5bGU9ImVuYWJsZS1iYWNrZ3JvdW5kOm5ldyAwIDAgNjEyIDYxMjsiIHhtbDpzcGFjZT0icHJlc2VydmUiPgo8Zz4KCTxnIGlkPSJiYWNrc3BhY2UiPgoJCTxwYXRoIGQ9Ik01NjEsNzYuNUgxNzguNWMtMTcuODUsMC0zMC42LDcuNjUtNDAuOCwyMi45NUwwLDMwNmwxMzcuNywyMDYuNTVjMTAuMiwxMi43NSwyMi45NSwyMi45NSw0MC44LDIyLjk1SDU2MSAgICBjMjguMDUsMCw1MS0yMi45NSw1MS01MXYtMzU3QzYxMiw5OS40NSw1ODkuMDUsNzYuNSw1NjEsNzYuNXogTTQ4NC41LDM5Ny44bC0zNS43LDM1LjdMMzU3LDM0MS43bC05MS44LDkxLjhsLTM1LjctMzUuNyAgICBsOTEuOC05MS44bC05MS44LTkxLjhsMzUuNy0zNS43bDkxLjgsOTEuOGw5MS44LTkxLjhsMzUuNywzNS43TDM5Mi43LDMwNkw0ODQuNSwzOTcuOHoiIGZpbGw9IiNEODAwMjciLz4KCTwvZz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8L3N2Zz4K", (width * 0.05), (height * 0.15), (width * 0.1), (width * 0.1)).attr({
+                opacity: 0
+              });
+
+
+
+              window.localStorage.setItem("editorMode", "poly");
+              $("#circleMode").css("display", "none");
+              $("#cutMode").click(function()
+                          {
+                console.log("alo");
+                   editorMode=window.localStorage.getItem("editorMode");
+                   moveMode=window.localStorage.getItem("moveMode");
+                   if(editorMode == "circle" && moveMode == 0)
+                    {
+                      window.localStorage.setItem("editorPath1", "");
+                      window.localStorage.setItem("editorPath2", "");
+                      window.localStorage.setItem("usableCut", "0");
+                      window.localStorage.setItem("undoBehaviour", "");
+                      window.localStorage.setItem("cuts", "0");
+
+                      myImg.remove();
+                      myImg = s.image(img.src, ixCenter, iyCenter, imgWidth, imgHeight).attr({id: "dropped"});
+
+                      window.localStorage.setItem("editorMode", "poly");
+                      $("#polyMode").css("display", "block");
+                      $("#circleMode").css("display", "none");
+                    }
+                   if(editorMode == "poly" && moveMode == 0)
+                    {
+                      window.localStorage.setItem("editorPath1", "");
+                      window.localStorage.setItem("editorPath2", "");
+                      window.localStorage.setItem("usableCut", "0");
+                      window.localStorage.setItem("undoBehaviour", "");
+                      window.localStorage.setItem("cuts", "0");
+
+                      myImg.remove();
+                      myImg = s.image(img.src, ixCenter, iyCenter, imgWidth, imgHeight).attr({id: "dropped"});
+
+                      window.localStorage.setItem("editorMode", "circle");
+                      $("#circleMode").css("display", "block");
+                      $("#polyMode").css("display", "none");
+                    }
+
+
+
+              });
+              //Then define the 4 points on each corner, clockwise from topLeft
+              var imgCorner = [];
+              var ixCorner = [];
+              var iyCorner = [];
+              var imgHandle = [];
+              ixCorner[0] = ixCenter;
+              ixCorner[1] = imgWidth + ixCenter;
+              ixCorner[2] = imgWidth + ixCenter;
+              ixCorner[3] = ixCenter;
+
+              iyCorner[0] = iyCenter;
+              iyCorner[1] = iyCenter;
+              iyCorner[2] = iyCenter + imgHeight;
+              iyCorner[3] = iyCenter + imgHeight;
+
+              var imgCx = ixCorner[0] + (imgWidth / 2);
+              var imgCy = iyCorner[0] + (imgHeight / 2);
+
+              //ok, and draw the center point as a reference
+              //rgbA=0 because we are showing it on touch only
+              centerPoint = s.circle(imgCx, imgCy, 10).attr({
+                fill: "rgba(250,89,152, 0)"
+              });
+
+              imgHandle[0] = s.circle(ixCenter, iyCenter, 10).attr({
+                fill: "rgba(59,89,152, 1)"
+              });
+              imgHandle[1] = s.circle(imgWidth + ixCenter, iyCenter, 10).attr({
+                fill: "rgba(59,89,152, 1)"
+              });
+              imgHandle[2] = s.circle(imgWidth + ixCenter, iyCenter + imgHeight, 10).attr({
+                fill: "rgba(59,89,152, 1)"
+              });
+              imgHandle[3] = s.circle(ixCenter, iyCenter + imgHeight, 10).attr({
+                fill: "rgba(59,89,152, 1)"
+              });
+              //define the lines array, only graphical
+              var myLine = [];
+              //and a touch counter
+              var touches = 0;
+              var touchCuts = 0 //this should be better than the touches counter to count the actual cuts only
+              var imgMask = []; //our mask paths
+              var maskGroups = s.group();
+              var m = 0; //our mask counter
+              var myMaskFrag = []; //ADDED 17/1/17 - ARRAY for mask fragments to be exported !IMPORTANT!
+              var maskColor = "white"; //this is our mask color, we can change it here globally
+              var cp = [];
+              $("#mySvg").css({ "position": "static" });
+              $("#editorHolder").css({ "overflow-y": "hidden" });
+
+
+              //Bind an event to touchstart, supported by android, not supported on ios by default, supposedly fixed by the mousedown, mousemove, mouseup
+
             $("#mySvg").on('touchstart mousedown', function (event) {
                 //console.log(touches);
-                gnStartX = event.touches[0].pageX;
-                gnStartY = event.touches[0].pageY;
-                gnStartX = parseInt(gnStartX);
-                gnStartY = parseInt(gnStartY);
-                cutTouchStart(event, s, touches, centerPoint, myLine, gnStartX, gnStartY);
+                if (window.localStorage.getItem("usableCut") == 0 && window.localStorage.getItem("cuts") <= 1) {
+                    touches++
+                    console.log("so theres the mousedown")
+                    gnStartX = event.touches[0].pageX;
+                    gnStartY = event.touches[0].pageY;
+                    myLine[touches] = s.line(gnStartX, gnStartY, gnStartX + 1, gnStartY + 1);
+                    centerPoint.attr({
+                      fill: "rgba(250,89,152, 0.2)"
+                    });
+                  }
+                  if(window.localStorage.getItem("editorMode")=="circle")
+                    {
+                    step=0;
+                    var doIwannaStopTheUser = 0;
+                    gnStartX = event.touches[0].pageX;
+                    gnStartY = event.touches[0].pageY;
+                    console.log("drawin circles")
+                      cp[step] = s.circlePath(gnStartX,gnStartY,2).attr({ fill: "none", stroke: "white", strokeWidth:3 });
+                    }
             });
-            $("#mySvg").on('touchmove mousemove', function (event) {
-                gnEndX = event.touches[0].pageX;
-                gnEndY = event.touches[0].pageY;
-                gnEndX = parseInt(gnEndX);
-                gnEndY = parseInt(gnEndY);
-                cutTouchMove(event, s, touches, centerPoint, myLine, gnStartX, gnStartY, gnEndX, gnEndY);
-            });
-            $("#mySvg").on('touchend touchcancel mouseup', function (event) {
 
-                centerPoint.attr({ fill: "rgba(250,89,152, 0)" });
-                //console.log("touchend")
-                p1 = ("M " + gnStartX + " " + gnStartY + " L " + gnEndX + " " + gnEndY)
-                p2 = ("M " + ixCorner[0] + " " + iyCorner[0] + " L " + ixCorner[1] + " " + iyCorner[1] + " " + ixCorner[2] + " " + iyCorner[2] + " " + ixCorner[3] + " " + iyCorner[3] + " Z")
-                //console.log(p1+ " and " +p2 );
-                var intersects = Snap.path.intersection(p1, p2); // intersection array
-                var intersectPointX = []; //intersection point x's
-                var intersectPointY = []; //and y's
-                var intersectHandler = []; //just the graphical thingies
-                var c = 0; //counter
-                if (intersects[0] && intersects[1] && touchCuts <= 1) {
-                    window.localStorage.setItem("history", "callEd");
-                    touchCuts++;
-                    touches++;
-                    //console.log("touchCuts "+touchCuts +" touches"+ touches);
-                    intersects.forEach(function (el) {
-                        intersectHandler[c] = s.circle(el.x, el.y, 10).attr({ fill: "rgba(250,89,152, 1)", class: "handleSwitcher" });
-                        intersectPointX[c] = el.x;
-                        intersectPointY[c] = el.y;
-                        c++;
-                        //console.log("intersection detected @"+el.x+","+el.y);
+            $("#mySvg").on('touchmove mousemove', function (event) {
+              if (window.localStorage.getItem("usableCut") == 0 && window.localStorage.getItem("cuts") <= 1 && window.localStorage.getItem("editorMode")=="poly") {
+                    //      console.log(ixCorner[0]+" \n "+ixCorner[1]+" \n "+ixCorner[2]+" \n "+ixCorner[3])
+                    gnEndX = event.touches[0].pageX;
+                    gnEndY = event.touches[0].pageY;
+                    console.log("u move");
+                    console.log("START X " + gnStartX + "START Y " + gnStartY + " END X " + gnEndX + " END Y " + gnEndY);
+
+
+
+                    /*
+                    went to stackoverflow
+                    y = ((d - b)/(c - a))*(p - a) + b
+                    y = ((d - b)/(c - a))*(q - a) + b
+                    useY1 = ((y2 - y1)/(x2 - x1))*(0 - x1) + y1
+                    useY2 = ((y2 - y1)/(x2 - x1))*(width - x1) + y1
+                    You will encounter a problem if the two points are vertical (c = a || x2 = x1) which will cause division by zero.
+                    Kristian
+                    http://stackoverflow.com/questions/26589167/extend-the-line-to-the-end-of-the-screen?rq=1
+                    WORKS LIKE A CHARM <3
+                    */
+
+                    if(gnStartX == gnEndX)
+                      {
+                        console.log("problem!");
+                        gnEndX = gnEndX+1;
+                      }
+                    useY1 = ((gnEndY - gnStartY)/(gnEndX - gnStartX))*(0 - gnStartX) + gnStartY;
+                    useY2 = ((gnEndY - gnStartY)/(gnEndX - gnStartX))*(width - gnStartX) + gnStartY;
+                    //Constantly update the line
+                    myLine[touches].attr({
+                      x1: 0,
+                      y1: useY1,
+                      x2: width,
+                      y2: useY2,
+                      strokeWidth: 2,
+                      stroke: "rgba(0,0,0,0.4)",
+                      strokeLinecap: "round",
+                      strokeDasharray: 5
                     });
 
-                    var fiPClassification = []
-                    var siPClassification = []
-                    if ((intersectPointY[0] > iyCorner[0] - 1 && intersectPointY[0] < iyCorner[0] + 1)
-                        ||
-                        (intersectPointY[0] > iyCorner[3] - 1 && intersectPointY[0] < iyCorner[3] + 1)) {
-                        fiPClassification[0] = 0; //VerticalCut
-                        if (intersectPointY[0] > iyCorner[0] + imgHeight / 2) {
-                            fiPClassification[1] = 0; //BottomHalf
-                            if (intersectPointX[0] > ixCorner[0] + imgWidth / 2)
-                            { fiPClassification[2] = 0; } else { fiPClassification[2] = 1; }
-                        } else {
-                            fiPClassification[1] = 1; //TopHalf
-                            if (intersectPointX[0] > ixCorner[0] + imgWidth / 2)
-                            { fiPClassification[2] = 0; } else { fiPClassification[2] = 1; }
+                    centerPoint.attr({
+                      fill: "rgba(250,89,152, 0.5)"
+                    });
+                  }
+                  //if instead of poly, the user is drawing circles
+                  if(window.localStorage.getItem("editorMode")=="circle"){
+
+                    gnEndX = event.touches[0].pageX;
+                    gnEndY = event.touches[0].pageY;
+                    console.log("drawin circles");
+
+                    // so before we draw the next iteration of the circle, we check if it intersects the image ( we dont want circles 2 be 2 big)
+                    //ip = p2 on touchend check for the lines drawing
+                    // ip=p2=edited image actual Path shape
+                    ip = ("M " + ixCorner[0] + " " + iyCorner[0] + " L " + ixCorner[1] + " " + iyCorner[1] + " " + ixCorner[2] + " " + iyCorner[2] + " " + ixCorner[3] + " " + iyCorner[3] + " Z")
+                    var doIwannaStopTheUser = 0;
+                    var intersects = Snap.path.intersection(cp[step],ip);
+                    intersects.forEach( function( el ) {
+                      //s.circle( el.x, el.y, 10 );
+                      //-- line above displays a circle on the place of the intersection, usefull for testing
+                      doIwannaStopTheUser = 1;
+                      cp[step].remove();
+                      console.log("stopp!")
+                      myImg.removeAttr("clip-path");
+                      acceptable=0;
+                    } );
+                    //if we arent stopping the user,x
+                    if(doIwannaStopTheUser == 0)
+                      {
+                      cp[step].remove();
+                      rDistance =calcDistance(gnStartX, gnStartY, gnEndX, gnEndY)
+                      step++
+                      cp[step] = s.circlePath(gnStartX,gnStartY,rDistance).attr({ fill: "none", stroke: "white", strokeWidth:3});
+                        acceptableDist = parseInt((ixCorner[1] - ixCorner[0]) * 0.075);
+                        // ok so we just defined that acceptable radius is 7.5% of the photo size
+                      if(rDistance>acceptableDist)
+                        {
+                          myImg.attr({clipPath:cp[step]});
+                          acceptable = 1;
                         }
-                    }
-                    else if (intersectPointY[0]) {
-                        fiPClassification[0] = 1; //HorizontalCut
-                        if (intersectPointY[0] > iyCorner[0] + imgHeight / 2) {
-                            fiPClassification[1] = 0; //BottomHalf
-                            if (intersectPointX[0] > ixCorner[0] + imgWidth / 2)
-                            { fiPClassification[2] = 0; } else { fiPClassification[2] = 1; }
-                        } else {
-                            fiPClassification[1] = 1; //TopHalf
-                            if (intersectPointX[0] > ixCorner[0] + imgWidth / 2)
-                            { fiPClassification[2] = 0; } else { fiPClassification[2] = 1; }
-                        }
-                    }
-                    if ((intersectPointY[1] > iyCorner[0] - 1 && intersectPointY[1] < iyCorner[0] + 1)
-                        ||
-                        (intersectPointY[1] > iyCorner[3] - 1 && intersectPointY[1] < iyCorner[3] + 1)) {
-                        siPClassification[0] = 0; //VerticalCut
-                        if (intersectPointY[1] > iyCorner[0] + imgHeight / 2) {
-                            siPClassification[1] = 0; //BottomHalf
-                            if (intersectPointX[1] > ixCorner[0] + imgWidth / 2)
-                            { siPClassification[2] = 0; } else { siPClassification[2] = 1; }
-                        } else {
-                            siPClassification[1] = 1; //TopHalf
-                            if (intersectPointX[1] > ixCorner[0] + imgWidth / 2)
-                            { siPClassification[2] = 0; } else { siPClassification[2] = 1; }
-                        }
-                    } else if (intersectPointY[1]) {
-                        siPClassification[0] = 1; //HorizontalCut
-                        if (intersectPointY[1] > iyCorner[0] + imgHeight / 2) {
-                            siPClassification[1] = 0; //BottomHalf
-                            if (intersectPointX[1] > ixCorner[0] + imgWidth / 2)
-                            { siPClassification[2] = 0; } else { siPClassification[2] = 1; }
-                        } else {
-                            siPClassification[1] = 1; //TopHalf
-                            if (intersectPointX[1] > ixCorner[0] + imgWidth / 2)
-                            { siPClassification[2] = 0; } else { siPClassification[2] = 1; }
-                        }
-                    }
+                      }
+                  }
+                });
+            $("#mySvg").on('touchend touchcancel mouseup', function (event) {
 
-                    //console.log(fiPClassification[0] + " " + fiPClassification[1] + " " + fiPClassification[2] + " \n " + siPClassification[0] + " " + siPClassification[1] + " " + siPClassification[2] + " ")
 
-                    if (fiPClassification[0] == 0 && fiPClassification[1] == 1 && fiPClassification[2] == 1 && siPClassification[0] == 1 && siPClassification[1] == 1 && siPClassification[2] == 1) {
-                        cutPath = ("M " + intersectPointX[0] + " " + intersectPointY[0] + " L " + ixCorner[1] + " " + iyCorner[1] + " " + ixCorner[2] + " " + iyCorner[2] + " " + ixCorner[3] + " " + iyCorner[3] + " " + intersectPointX[1] + " " + intersectPointY[1] + " Z");
-                        imgMask[m] = s.path(cutPath).attr({ fill: maskColor });
-                        imgHandle[0].attr({ fill: "rgba(0,0,0,0)" });
-                        m++;
+
+                  // not putting fullsize check if circle OR square, only this:
+                  if(window.localStorage.getItem("editorMode")=="circle"){
+                    if(accetable == 0)
+                    {
+                     cp[step].remove();
                     }
+                  }
 
-                    if (fiPClassification[0] == 0 && fiPClassification[1] == 1 && fiPClassification[2] == 1 && siPClassification[0] == 1 && siPClassification[1] == 0 && siPClassification[2] == 1) {
-                        cutPath = ("M " + intersectPointX[0] + " " + intersectPointY[0] + " L " + ixCorner[1] + " " + iyCorner[1] + " " + ixCorner[2] + " " + iyCorner[2] + " " + ixCorner[3] + " " + iyCorner[3] + " " + intersectPointX[1] + " " + intersectPointY[1] + " Z");
-                        imgMask[m] = s.path(cutPath).attr({ fill: maskColor });
-                        imgHandle[0].attr({ fill: "rgba(0,0,0,0)" });
-                        m++;
-                    }
+                  console.log("touchend");
+                  myLine[touches].remove();
+                  //lets just update the center point to default opacity
+                  centerPoint.attr({
+                    fill: "rgba(250,89,152, 0)"
+                  });
 
-                    if (fiPClassification[0] == 0 && fiPClassification[1] == 1 && fiPClassification[2] == 0 && siPClassification[0] == 1 && siPClassification[1] == 1 && siPClassification[2] == 1) {
-                        cutPath = ("M " + intersectPointX[0] + " " + intersectPointY[0] + " L " + ixCorner[1] + " " + iyCorner[1] + " " + ixCorner[2] + " " + iyCorner[2] + " " + ixCorner[3] + " " + iyCorner[3] + " " + intersectPointX[1] + " " + intersectPointY[1] + " Z");
-                        imgMask[m] = s.path(cutPath).attr({ fill: maskColor });
-                        imgHandle[0].attr({ fill: "rgba(0,0,0,0)" });
-                        m++;
-                    }
+                  //p1 = ("M " + gnStartX + " " + gnStartY + " L " + gnEndX + " " + gnEndY)
+                  //I just retired the old P1 in favor of:
 
-                    if (fiPClassification[0] == 0 && fiPClassification[1] == 1 && fiPClassification[2] == 0 && siPClassification[0] == 1 && siPClassification[1] == 0 && siPClassification[2] == 1) {
-                        cutPath = ("M " + intersectPointX[0] + " " + intersectPointY[0] + " L " + ixCorner[1] + " " + iyCorner[1] + " " + ixCorner[2] + " " + iyCorner[2] + " " + ixCorner[3] + " " + iyCorner[3] + " " + intersectPointX[1] + " " + intersectPointY[1] + " Z");
-                        imgMask[m] = s.path(cutPath).attr({ fill: maskColor });
-                        imgHandle[0].attr({ fill: "rgba(0,0,0,0)" });
-                        m++;
-                    }
+                  if(gnStartX == gnEndX)
+                      {
+                        console.log("problem!");
+                        gnEndX = gnEndX+1;
+                      }
+                  useY1 = ((gnEndY - gnStartY)/(gnEndX - gnStartX))*(0 - gnStartX) + gnStartY;
+                  useY2 = ((gnEndY - gnStartY)/(gnEndX - gnStartX))*(width - gnStartX) + gnStartY;
 
-                    if (fiPClassification[0] == 0 && fiPClassification[1] == 0 && fiPClassification[2] == 1 && siPClassification[0] == 1 && siPClassification[1] == 0 && siPClassification[2] == 1) {
-                        cutPath = ("M " + ixCorner[0] + " " + iyCorner[0] + " L " + ixCorner[1] + " " + iyCorner[1] + " " + ixCorner[2] + " " + iyCorner[2] + " " + intersectPointX[0] + " " + intersectPointY[0] + " " + intersectPointX[1] + " " + intersectPointY[1] + " Z");
-                        imgMask[m] = s.path(cutPath).attr({ fill: maskColor });
-                        imgHandle[3].attr({ fill: "rgba(0,0,0,0)" });
-                        m++;
-                    }
+                  p1 = ("M " + 0 + " " + useY1 + " L " + width + " " + useY2);
+                  p2 = ("M " + ixCorner[0] + " " + iyCorner[0] + " L " + ixCorner[1] + " " + iyCorner[1] + " " + ixCorner[2] + " " + iyCorner[2] + " " + ixCorner[3] + " " + iyCorner[3] + " Z")
 
-                    if (fiPClassification[0] == 0 && fiPClassification[1] == 0 && fiPClassification[2] == 1 && siPClassification[0] == 1 && siPClassification[1] == 1 && siPClassification[2] == 1) {
-                        cutPath = ("M " + ixCorner[0] + " " + iyCorner[0] + " L " + ixCorner[1] + " " + iyCorner[1] + " " + ixCorner[2] + " " + iyCorner[2] + " " + intersectPointX[0] + " " + intersectPointY[0] + " " + intersectPointX[1] + " " + intersectPointY[1] + " Z");
-                        imgMask[m] = s.path(cutPath).attr({ fill: maskColor });
-                        imgHandle[3].attr({ fill: "rgba(0,0,0,0)" });
-                        m++;
-                    }
+                  var intersects = Snap.path.intersection(p1, p2); // intersection array
+                  var intersectPointX = []; //intersection point x's
+                  var intersectPointY = []; //and y's
+                  var intersectHandler = []; //just the graphical thingies
+                  var c = 0; //counter
+                  // if there are 2 intersections, and allow no more than 2 cuts
+                  //now using "touchCuts" instead of "touches" counter to fix the bug caused by erratic touchStart/End firing by some androids
+                  if (window.localStorage.getItem("usableCut") == 0) {
+                    if (intersects[0] && intersects[1] && window.localStorage.getItem("cuts") <= 1) {
+                      window.localStorage.setItem("usableCut", 1);
+                      window.localStorage.setItem("undoBehaviour", "rmvPaths");
+                      myUndo.attr({
+                        opacity: 1
+                      });
+                      //but before pathfinding, lets do smth cool, huh ?
 
-                    if (fiPClassification[0] == 0 && fiPClassification[1] == 0 && fiPClassification[2] == 0 && siPClassification[0] == 1 && siPClassification[1] == 0 && siPClassification[2] == 1) {
-                        cutPath = ("M " + ixCorner[0] + " " + iyCorner[0] + " L " + ixCorner[1] + " " + iyCorner[1] + " " + ixCorner[2] + " " + iyCorner[2] + " " + intersectPointX[0] + " " + intersectPointY[0] + " " + intersectPointX[1] + " " + intersectPointY[1] + " Z");
-                        imgMask[m] = s.path(cutPath).attr({ fill: maskColor });
-                        imgHandle[3].attr({ fill: "rgba(0,0,0,0)" });
-                        m++;
-                    }
+                      if (window.localStorage.getItem("firstUse") == 1) {
+                        s.selectAll("tspan").forEach(function(tspan) {
+                          tspan.remove();
+                        });
+                        var helpie = s.text({
+                            text: ["Now you gotta tap on", "the side you want to DELETE!"]
+                          })
+                          .attr({
+                            fill: "black",
+                            fontSize: "18px"
+                          })
+                          .selectAll("tspan").forEach(function(tspan, i) {
+                            tspan.attr({
+                              x: width * 0.05,
+                              y: (height * 0.05) * (i + 1),
+                              id: "txt" + i
+                            });
+                          });
+                        helpie.attr({
+                          'font-size': 20
+                        });
+                      } else {
+                        s.selectAll("tspan").forEach(function(tspan) {
+                          tspan.remove();
+                        });
+                      }
 
-                    if (fiPClassification[0] == 0 && fiPClassification[1] == 0 && fiPClassification[2] == 0 && siPClassification[0] == 1 && siPClassification[1] == 1 && siPClassification[2] == 1) {
-                        cutPath = ("M " + ixCorner[0] + " " + iyCorner[0] + " L " + ixCorner[1] + " " + iyCorner[1] + " " + ixCorner[2] + " " + iyCorner[2] + " " + intersectPointX[0] + " " + intersectPointY[0] + " " + intersectPointX[1] + " " + intersectPointY[1] + " Z");
-                        imgMask[m] = s.path(cutPath).attr({ fill: maskColor });
-                        imgHandle[3].attr({ fill: "rgba(0,0,0,0)" });
-                        m++;
+                      // this done,
+
+                      intersects.forEach(function(el) {
+                        intersectHandler[c] = s.circle(el.x, el.y, 10).attr({
+                          fill: "rgba(250,89,152, 1)"
+                        });
+                        intersectPointX[c] = parseInt(el.x);
+                        intersectPointY[c] = parseInt(el.y);
+                        c++;
+                      });
                     }
 
-                    if (fiPClassification[0] == 0 && fiPClassification[1] == 1 && fiPClassification[2] == 0 && siPClassification[0] == 1 && siPClassification[1] == 1 && siPClassification[2] == 0) {
-                        cutPath = ("M " + ixCorner[0] + " " + iyCorner[0] + " L " + intersectPointX[0] + " " + intersectPointY[0] + " " + intersectPointX[1] + " " + intersectPointY[1] + " " + ixCorner[2] + " " + iyCorner[2] + " " + ixCorner[3] + " " + iyCorner[3] + " Z");
-                        imgMask[m] = s.path(cutPath).attr({ fill: maskColor });
-                        imgHandle[1].attr({ fill: "rgba(0,0,0,0)" });
-                        m++;
+                  }
+                  // so here's my illustrator-like pathfinder implementation
+                  //first we gotta know which intersectionPoint we gonna use
+                  //so we compare them
+                  // to make things easier
+                  //
+                  //***
+                  //
+                  //ok, so here's something I wanned to say about this check
+                  // instead of if(varn == ixCorner[x]||iyCorner[x])?
+                  // what we have to do is
+                  //if(
+                  //(varn+1)>ixCorner[x]||iyCorner[x]
+                  //&&
+                  //(varn-1)<ixCorner[x]||iyCorner[x])
+                  //we can't round them up or down because some times it makes this unstable, I've tested this
+
+                  tixCorner = [];
+                  tixCorner[0] = parseInt(ixCenter);
+                  tixCorner[1] = parseInt(imgWidth + ixCenter);
+                  tixCorner[2] = parseInt(imgWidth + ixCenter);
+                  tixCorner[3] = parseInt(ixCenter);
+
+                  tiyCorner = [];
+                  tiyCorner[0] = parseInt(iyCenter);
+                  tiyCorner[1] = parseInt(iyCenter);
+                  tiyCorner[2] = parseInt(iyCenter + imgHeight);
+                  tiyCorner[3] = parseInt(iyCenter + imgHeight);
+                  console.log("ipx0_" + intersectPointX[0])
+                  console.log("ipx1_" + intersectPointX[1])
+                  if (
+                    (parseInt(intersectPointX[0] + 5) > tixCorner[0]) &&
+                    (parseInt(intersectPointX[0] - 5) < tixCorner[0])
+                  ) {
+                    var ipx0 = "l";
+                  }
+
+                  if (
+                    (parseInt(intersectPointX[1] + 5) > tixCorner[0]) &&
+                    (parseInt(intersectPointX[1] - 5) < tixCorner[0])
+                  ) {
+                    var ipx1 = "l";
+                  }
+
+                  if (
+                    (parseInt(intersectPointX[0] + 5) > tixCorner[1]) &&
+                    (parseInt(intersectPointX[0] - 5) < tixCorner[1])
+                  ) {
+                    var ipx0 = "r";
+                  }
+                  if (
+                    (parseInt(intersectPointX[1] + 5) > tixCorner[1]) &&
+                    (parseInt(intersectPointX[1] - 5) < tixCorner[1])
+                  ) {
+                    var ipx1 = "r";
+                  }
+
+                  if (
+                    (parseInt(intersectPointY[0] + 5) > tiyCorner[0]) &&
+                    (parseInt(intersectPointY[0] - 5) < tiyCorner[0])
+                  ) {
+                    var ipy0 = "t";
+                  }
+                  if (
+                    (parseInt(intersectPointY[1] + 5) > tiyCorner[0]) &&
+                    (parseInt(intersectPointY[1] - 5) < tiyCorner[0])
+                  ) {
+                    var ipy1 = "t";
+                  }
+
+                  if (
+                    (parseInt(intersectPointY[0] + 5) > tiyCorner[2]) &&
+                    (parseInt(intersectPointY[0] - 5) < tiyCorner[2])
+                  ) {
+                    var ipy0 = "b";
+                  }
+                  if (
+                    (parseInt(intersectPointY[1] + 5) > tiyCorner[2]) &&
+                    (parseInt(intersectPointY[1] - 5) < tiyCorner[2])
+                  )
+
+                  {
+                    var ipy1 = "b";
+                  }
+
+                  /*
+                    console.log("ipx0_"+intersectPointX[0])
+                    console.log("ipx1_"+intersectPointX[1])
+                    console.log("ipy0_"+intersectPointY[0])
+                    console.log("ipy1_"+intersectPointY[1])
+
+                    console.log("ixCorner0_"+tixCorner[0])
+                    console.log("ixCorner1_"+tixCorner[1])
+                    console.log("iyCorner0_"+tiyCorner[0])
+                    console.log("iyCorner2_"+tiyCorner[2])
+
+                    OK, cheks are done, if we output this:
+                    */
+                  console.log(ipx0 + " " + ipx1);
+                  console.log(ipy0 + " " + ipy1);
+
+                  //it doesn't necessarily define ipx0, ipx1, ipy0, or ipy1
+                  //we gotta work with them now.
+                  // gonna start pathFinding from Left -> Top corner. It's simpler..
+                  //& apply for the rest of the process...
+                  //we gonna make 2 paths.
+                  //clone & remove the OG image, and apply clones to each one of the paths, or smth like this...
+                  //NOTICE> never more OR less than 2 states are undefined
+
+                  //bad, discovered a bug with this
+                  //so when u make it go across the corner, actually more than 2 are defined.
+                  //and the !var checks are useless (& typeof too)
+                  // so im gonna improvise smth here...
+
+                  if (
+                    (parseInt(intersectPointX[1] - 5) < tixCorner[0] && parseInt(intersectPointY[1] - 5) < tiyCorner[0]) ||
+                    (parseInt(intersectPointX[0] - 5) < tixCorner[0] && parseInt(intersectPointY[0] - 5) < tiyCorner[0]) ||
+                    (parseInt(intersectPointX[1] - 5) < tixCorner[0] && parseInt(intersectPointY[1] + 5) > tiyCorner[3]) ||
+                    (parseInt(intersectPointX[0] - 5) < tixCorner[0] && parseInt(intersectPointY[0] + 5) > tiyCorner[3])
+                  ) {
+                    //leftside corner bitx!
+                    window.localStorage.setItem("usableCut", 0);
+                    ipx0 = "z";
+                    ipx1 = "z";
+                    ipy0 = "z";
+                    ipy1 = "z";
+                    //we put ipx, ipy to sleep
+                    //& remove the intersectHandlers
+                    intersectHandler.forEach(function(el) {
+                      el.remove();
+                    });
+                  }
+
+                  if (
+                    (parseInt(intersectPointX[1] + 5) > tixCorner[1] && parseInt(intersectPointY[1] - 5) < tiyCorner[0]) ||
+                    (parseInt(intersectPointX[0] + 5) > tixCorner[1] && parseInt(intersectPointY[0] - 5) < tiyCorner[0]) ||
+                    (parseInt(intersectPointX[1] + 5) > tixCorner[1] && parseInt(intersectPointY[1] + 5) > tiyCorner[3]) ||
+                    (parseInt(intersectPointX[0] + 5) > tixCorner[1] && parseInt(intersectPointY[0] + 5) > tiyCorner[3])
+                  ) {
+                    //rightside corner bitx!
+                    window.localStorage.setItem("usableCut", 0);
+                    ipx0 = "z";
+                    ipx1 = "z";
+                    ipy0 = "z";
+                    ipy1 = "z";
+                    intersectHandler.forEach(function(el) {
+                      el.remove();
+                    });
+                  }
+
+                  if (typeof ipx1 != 'undefined' &&
+                    typeof ipy0 != 'undefined' &&
+                    !ipx0 &&
+                    !ipy1) {
+
+                    //  now we check if ipy0 is t or b
+                    //left -> top
+                    if (ipx1 == "l" && ipy0 == "t") {
+                      prePath1 = "M " + tixCorner[0] + " " + tiyCorner[0] + " L " + intersectPointX[1] + " " + intersectPointY[1] + " L " + intersectPointX[0] + " " + intersectPointY[0] + " Z ";
+                      var path1 = s.path(prePath1).attr({
+                        fill: "rgba(255,0,0,0.25)",
+                        stroke: "white",
+                        opacity: "1"
+                      });
+
+                      prePath2 = "M " + intersectPointX[1] + " " + intersectPointY[1] + " L " + tixCorner[3] + " " + tiyCorner[3] + " L " + tixCorner[2] + " " + tiyCorner[2] + " " + tixCorner[1] + " " + tiyCorner[1] + " " + intersectPointX[0] + " " + intersectPointY[0] + " Z ";
+                      console.log(prePath2);
+                      var path2 = s.path(prePath2).attr({
+                        fill: "rgba(255,0,0,0.25)",
+                        stroke: "white",
+                        opacity: "1"
+                      });
+                    }
+                    //right -> top
+                    if (ipx1 == "r" && ipy0 == "t") {
+                      prePath1 = "M " + tixCorner[0] + " " + tiyCorner[0] + " L " + intersectPointX[0] + " " + intersectPointY[0] + " L " + intersectPointX[1] + " " + intersectPointY[1] + " L " + tixCorner[2] + " " + tiyCorner[2] + " " + tixCorner[3] + " " + tiyCorner[3] + " Z ";
+                      var path1 = s.path(prePath1).attr({
+                        fill: "rgba(255,0,0,0.25)",
+                        stroke: "white",
+                        opacity: "1"
+                      });
+
+                      prePath2 = "M " + intersectPointX[1] + " " + intersectPointY[1] + " L " + tixCorner[1] + " " + tiyCorner[1] + " L " + intersectPointX[0] + " " + intersectPointY[0] + " Z ";
+                      console.log("rtl");
+                      var path2 = s.path(prePath2).attr({
+                        fill: "rgba(255,0,0,0.25)",
+                        stroke: "white",
+                        opacity: "1"
+                      });
+                    }
+                    //left -> bottom
+                    if (ipx1 = "l" && ipy0 == "b") {
+                      prePath1 = "M " + tixCorner[0] + " " + tiyCorner[0] + " L " + tixCorner[1] + " " + tiyCorner[1] + " L " + tixCorner[2] + " " + tiyCorner[2] + " L " + intersectPointX[0] + " " + intersectPointY[0] + " L " + intersectPointX[1] + " " + intersectPointY[1] + " Z ";
+                      var path1 = s.path(prePath1).attr({
+                        fill: "rgba(255,0,0,0.25)",
+                        stroke: "white",
+                        opacity: "1"
+                      });
+
+                      prePath2 = "M " + intersectPointX[1] + " " + intersectPointY[1] + " L " + intersectPointX[0] + " " + intersectPointY[0] + " L " + tixCorner[3] + " " + tiyCorner[3] + " Z ";
+                      var path2 = s.path(prePath2).attr({
+                        fill: "rgba(255,0,0,0.25)",
+                        stroke: "white",
+                        opacity: "1"
+                      });
+                    }
+                  }
+                  //Right -> Left
+                  if (typeof ipx0 != 'undefined' &&
+                    typeof ipx1 != 'undefined' &&
+                    !ipy0 &&
+                    !ipy1) {
+                    prePath1 = "M " + tixCorner[0] + " " + tiyCorner[0] + " L " + tixCorner[1] + " " + tiyCorner[1] + " L " + intersectPointX[0] + " " + intersectPointY[0] + " L " + intersectPointX[1] + " " + intersectPointY[1] + " Z ";
+                    var path1 = s.path(prePath1).attr({
+                      fill: "rgba(255,0,0,0.25)",
+                      stroke: "white",
+                      opacity: "1"
+                    });
+
+                    prePath2 = "M " + intersectPointX[1] + " " + intersectPointY[1] + " L " + intersectPointX[0] + " " + intersectPointY[0] + " L " + tixCorner[2] + " " + tiyCorner[2] + " L " + tixCorner[3] + " " + tiyCorner[3] + " Z ";
+                    var path2 = s.path(prePath2).attr({
+                      fill: "rgba(255,0,0,0.25)",
+                      stroke: "white",
+                      opacity: "1"
+                    });
+                  }
+
+                  //Top -> Bottom
+                  if (typeof ipy0 != 'undefined' &&
+                    typeof ipy1 != 'undefined' &&
+                    !ipx0 &&
+                    !ipx1) {
+                    prePath1 = "M " + tixCorner[0] + " " + tiyCorner[0] + " L " + intersectPointX[0] + " " + intersectPointY[0] + " L " + intersectPointX[1] + " " + intersectPointY[1] + " L " + tixCorner[3] + " " + tiyCorner[3] + " Z";
+                    var path1 = s.path(prePath1).attr({
+                      fill: "rgba(255,0,0,0.25)",
+                      stroke: "white",
+                      opacity: "1"
+                    });
+
+                    prePath2 = "M " + intersectPointX[1] + " " + intersectPointY[1] + " L " + tixCorner[2] + " " + tiyCorner[2] + " L " + tixCorner[1] + " " + tiyCorner[1] + " L " + intersectPointX[0] + " " + intersectPointY[0] + " Z";
+                    var path2 = s.path(prePath2).attr({
+                      fill: "rgba(255,0,0,0.25)",
+                      stroke: "white",
+                      opacity: "1"
+                    });
+                  }
+
+                  //right -> bottom
+                  if (typeof ipx0 != 'undefined' &&
+                    typeof ipy1 != 'undefined' &&
+                    !ipx1 &&
+                    !ipy0) {
+                    prePath1 = "M " + intersectPointX[0] + " " + intersectPointY[0] + " L " + tixCorner[2] + " " + tiyCorner[2] + " L " + intersectPointX[1] + " " + intersectPointY[1] + " Z";
+                    var path1 = s.path(prePath1).attr({
+                      fill: "rgba(255,0,0,0.25)",
+                      stroke: "white",
+                      opacity: "1"
+                    });
+
+                    prePath2 = "M " + tixCorner[0] + " " + tiyCorner[0] + " L " + tixCorner[1] + " " + tiyCorner[1] + " L " + intersectPointX[0] + " " + intersectPointY[0] + " L " + intersectPointX[1] + " " + intersectPointY[1] + " L " + tixCorner[3] + " " + tiyCorner[3] + " Z";
+                    var path2 = s.path(prePath2).attr({
+                      fill: "rgba(255,0,0,0.25)",
+                      stroke: "white",
+                      opacity: "1"
+                    });
+                  }
+
+
+                  // gotta be smth from old ver or smth, idk
+                  var finalPath = "";
+
+                  // newVer>>
+                  path1.click(function(event) {
+                    //if firstUse
+                    if (window.localStorage.getItem("firstUse") == 1) {
+                      s.selectAll("tspan").forEach(function(tspan) {
+                        tspan.remove();
+                      });
+                      var helpie = s.text({
+                        text: ["Great :) !", "Go on, you can repeat now!"]
+                      }).attr({
+                        fill: "black",
+                        fontSize: "18px"
+                      }).selectAll("tspan").forEach(function(tspan, i) {
+                        tspan.attr({
+                          x: width * 0.05,
+                          y: (height * 0.05) * (i + 1),
+                          id: "txt" + i
+                        });
+                      });
+                      helpie.attr({
+                        'font-size': 20
+                      });
+                      window.localStorage.setItem("firstUse", 0);
                     }
 
-                    if (fiPClassification[0] == 0 && fiPClassification[1] == 1 && fiPClassification[2] == 0 && siPClassification[0] == 1 && siPClassification[1] == 0 && siPClassification[2] == 0) {
-                        cutPath = ("M " + ixCorner[0] + " " + iyCorner[0] + " L " + intersectPointX[0] + " " + intersectPointY[0] + " " + intersectPointX[1] + " " + intersectPointY[1] + " " + ixCorner[2] + " " + iyCorner[2] + " " + ixCorner[3] + " " + iyCorner[3] + " Z");
-                        imgMask[m] = s.path(cutPath).attr({ fill: maskColor });
-                        imgHandle[1].attr({ fill: "rgba(0,0,0,0)" });
-                        m++;
-                    }
+                    //if we have an usable cut
+                    if (window.localStorage.getItem("usableCut") == 1) {
+                      this.attr({
+                        opacity: '1'
+                      });
+                      // we gotta know which cut this is 1st or 2nd & update the cut
+                      cUpdate = parseInt(window.localStorage.getItem("cuts")) + 1;
+                      window.localStorage.setItem("cuts", cUpdate);
+                      if (cUpdate == 1) {
+                        //first cut, basically,
+                        //invokes creation of the var finalPath
+                        // and finalPath is then used as simple .attr({clipPath:finalPath}) over myImg
+                        var finalPath = s.path(path2.attr("d"));
+                        //we set finalPath's path to localStorage cause we gonna need it
+                        window.localStorage.setItem("editorPath1", path2.attr("d"));
+                        // some design shit
+                        myUndo.attr({
+                          opacity: 0.2
+                        });
 
-                    if (fiPClassification[0] == 0 && fiPClassification[1] == 1 && fiPClassification[2] == 1 && siPClassification[0] == 1 && siPClassification[1] == 1 && siPClassification[2] == 0) {
-                        cutPath = ("M " + ixCorner[0] + " " + iyCorner[0] + " L " + intersectPointX[0] + " " + intersectPointY[0] + " " + intersectPointX[1] + " " + intersectPointY[1] + " " + ixCorner[2] + " " + iyCorner[2] + " " + ixCorner[3] + " " + iyCorner[3] + " Z");
-                        imgMask[m] = s.path(cutPath).attr({ fill: maskColor });
-                        imgHandle[1].attr({ fill: "rgba(0,0,0,0)" });
-                        m++;
-                    }
+                        finalPath.attr({
+                          opacity: '1',
+                          fill: "red"
+                        });
 
-                    if (fiPClassification[0] == 0 && fiPClassification[1] == 1 && fiPClassification[2] == 1 && siPClassification[0] == 1 && siPClassification[1] == 0 && siPClassification[2] == 0) {
-                        cutPath = ("M " + ixCorner[0] + " " + iyCorner[0] + " L " + intersectPointX[0] + " " + intersectPointY[0] + " " + intersectPointX[1] + " " + intersectPointY[1] + " " + ixCorner[2] + " " + iyCorner[2] + " " + ixCorner[3] + " " + iyCorner[3] + " Z");
-                        imgMask[m] = s.path(cutPath).attr({ fill: maskColor });
-                        imgHandle[1].attr({ fill: "rgba(0,0,0,0)" });
-                        m++;
-                    }
+                        intersectHandler.forEach(function(el) {
+                          el.remove();
+                        })
+                      }
 
-                    if (fiPClassification[0] == 1 && fiPClassification[1] == 0 && fiPClassification[2] == 0 && siPClassification[0] == 0 && siPClassification[1] == 0 && siPClassification[2] == 0) {
-                        cutPath = ("M " + ixCorner[0] + " " + iyCorner[0] + " L " + ixCorner[1] + " " + iyCorner[1] + " " + intersectPointX[0] + " " + intersectPointY[0] + " " + intersectPointX[1] + " " + intersectPointY[1] + " " + ixCorner[3] + " " + iyCorner[3] + " Z");
-                        imgMask[m] = s.path(cutPath).attr({ fill: maskColor });
-                        imgHandle[2].attr({ fill: "rgba(0,0,0,0)" });
-                        m++;
-                    }
-
-                    if (fiPClassification[0] == 1 && fiPClassification[1] == 1 && fiPClassification[2] == 0 && siPClassification[0] == 0 && siPClassification[1] == 0 && siPClassification[2] == 0) {
-                        cutPath = ("M " + ixCorner[0] + " " + iyCorner[0] + " L " + ixCorner[1] + " " + iyCorner[1] + " " + intersectPointX[0] + " " + intersectPointY[0] + " " + intersectPointX[1] + " " + intersectPointY[1] + " " + ixCorner[3] + " " + iyCorner[3] + " Z");
-                        imgMask[m] = s.path(cutPath).attr({ fill: maskColor });
-                        imgHandle[2].attr({ fill: "rgba(0,0,0,0)" });
-                        m++;
-                    }
-
-                    if (fiPClassification[0] == 1 && fiPClassification[1] == 0 && fiPClassification[2] == 0 && siPClassification[0] == 0 && siPClassification[1] == 0 && siPClassification[2] == 1) {
-                        cutPath = ("M " + ixCorner[0] + " " + iyCorner[0] + " L " + ixCorner[1] + " " + iyCorner[1] + " " + intersectPointX[0] + " " + intersectPointY[0] + " " + intersectPointX[1] + " " + intersectPointY[1] + " " + ixCorner[3] + " " + iyCorner[3] + " Z");
-                        imgMask[m] = s.path(cutPath).attr({ fill: maskColor });
-                        imgHandle[2].attr({ fill: "rgba(0,0,0,0)" });
-                        m++;
-                    }
-
-                    if (fiPClassification[0] == 1 && fiPClassification[1] == 1 && fiPClassification[2] == 0 && siPClassification[0] == 0 && siPClassification[1] == 0 && siPClassification[2] == 1) {
-                        cutPath = ("M " + ixCorner[0] + " " + iyCorner[0] + " L " + ixCorner[1] + " " + iyCorner[1] + " " + intersectPointX[0] + " " + intersectPointY[0] + " " + intersectPointX[1] + " " + intersectPointY[1] + " " + ixCorner[3] + " " + iyCorner[3] + " Z");
-                        imgMask[m] = s.path(cutPath).attr({ fill: maskColor });
-                        imgHandle[2].attr({ fill: "rgba(0,0,0,0)" });
-                        m++;
-                    }
-
-                    if (fiPClassification[0] == 0 && fiPClassification[1] == 1 && fiPClassification[2] == 1 && siPClassification[0] == 0 && siPClassification[1] == 0 && siPClassification[2] == 1) {
-                        cutPath = ("M " + ixCorner[1] + " " + iyCorner[1] + " L " + intersectPointX[0] + " " + intersectPointY[0] + " " + intersectPointX[1] + " " + intersectPointY[1] + " " + ixCorner[2] + " " + iyCorner[2] + " Z");
-                        imgMask[m] = s.path(cutPath).attr({ fill: maskColor });
-                        imgHandle[0].attr({ fill: "rgba(0,0,0,0)" });
-                        imgHandle[3].attr({ fill: "rgba(0,0,0,0)" });
-                        m++;
-                    }
-
-                    if (fiPClassification[0] == 0 && fiPClassification[1] == 1 && fiPClassification[2] == 0 && siPClassification[0] == 0 && siPClassification[1] == 0 && siPClassification[2] == 0) {
-                        cutPath = ("M " + ixCorner[0] + " " + iyCorner[0] + " L " + intersectPointX[0] + " " + intersectPointY[0] + " " + intersectPointX[1] + " " + intersectPointY[1] + " " + ixCorner[3] + " " + iyCorner[3] + " Z");
-                        imgMask[m] = s.path(cutPath).attr({ fill: maskColor });
-                        imgHandle[1].attr({ fill: "rgba(0,0,0,0)" });
-                        imgHandle[2].attr({ fill: "rgba(0,0,0,0)" });
-                        m++;
-                    }
-
-                    if (fiPClassification[0] == 1 && fiPClassification[1] == 1 && fiPClassification[2] == 0 && siPClassification[0] == 1 && siPClassification[1] == 1 && siPClassification[2] == 1) {
-                        cutPath = ("M " + ixCorner[3] + " " + iyCorner[3] + " L " + ixCorner[2] + " " + iyCorner[2] + " " + intersectPointX[0] + " " + intersectPointY[0] + " " + intersectPointX[1] + " " + intersectPointY[1] + " Z");
-                        imgMask[m] = s.path(cutPath).attr({ fill: maskColor });
-                        imgHandle[0].attr({ fill: "rgba(0,0,0,0)" });
-                        imgHandle[1].attr({ fill: "rgba(0,0,0,0)" });
-                        m++;
-                    }
-
-                    if (fiPClassification[0] == 1 && fiPClassification[1] == 0 && fiPClassification[2] == 0 && siPClassification[0] == 1 && siPClassification[1] == 0 && siPClassification[2] == 1) {
-                        cutPath = ("M " + intersectPointX[1] + " " + intersectPointY[1] + " L " + intersectPointX[0] + " " + intersectPointY[0] + " " + ixCorner[1] + " " + iyCorner[1] + " " + ixCorner[0] + " " + iyCorner[0] + " Z");
-                        imgMask[m] = s.path(cutPath).attr({ fill: maskColor });
-                        imgHandle[2].attr({ fill: "rgba(0,0,0,0)" });
-                        imgHandle[3].attr({ fill: "rgba(0,0,0,0)" });
-                        m++;
-                    }
-
-                    if (fiPClassification[0] == 0 && fiPClassification[1] == 1 && fiPClassification[2] == 1 && siPClassification[0] == 0 && siPClassification[1] == 0 && siPClassification[2] == 0) {
-                        path1 = ("M " + ixCorner[0] + " " + iyCorner[0] + " L " + intersectPointX[0] + " " + intersectPointY[0] + " " + intersectPointX[1] + " " + intersectPointY[1] + " " + ixCorner[3] + " " + iyCorner[3] + " Z");
-                        path2 = ("M " + ixCorner[1] + " " + iyCorner[1] + " L " + intersectPointX[0] + " " + intersectPointY[0] + " " + intersectPointX[1] + " " + intersectPointY[1] + " " + ixCorner[2] + " " + iyCorner[2] + " Z");
-                        if (Snap.path.isPointInside(path1, imgCx, imgCy)) {
-                            imgMask[m] = s.path(path1).attr({ fill: maskColor });
-                            imgHandle[1].attr({ fill: "rgba(0,0,0,0)" });
-                            imgHandle[2].attr({ fill: "rgba(0,0,0,0)" });
-                        } else if (Snap.path.isPointInside(path2, imgCx, imgCy)) {
-                            imgMask[m] = s.path(path2).attr({ fill: maskColor });
-                            imgHandle[0].attr({ fill: "rgba(0,0,0,0)" });
-                            imgHandle[3].attr({ fill: "rgba(0,0,0,0)" });
-                        }
-                        m++;
+                      if (cUpdate == 2) {
+                        //here shit gets messy,
+                        //we create tempPath, and then recreate finalPath
+                        //and finalPath.attr({clipPath:tempPath})
+                        //and at the end, clipPath finalPath to myImg
+                        var tempPath = s.path(path2.attr("d"));
+                        tempPath.attr({
+                          opacity: '1',
+                          fill: "red"
+                        });
+                        //deisgn shite, but note, we set myUndo to 0 opacity as this is the 2nd cut, so it's invisible from now on
+                        myUndo.attr({
+                          opacity: 0
+                        });
+                        //here we dig previous path from localStorage, and apply it again to a fresh finalPath
+                        finalPath = s.path(window.localStorage.getItem("editorPath1"));
+                        // and then, after the design, we apply the tempPath as clipPath
+                        finalPath.attr({
+                          opacity: '1',
+                          fill: "red",
+                          clipPath: tempPath
+                        });
+                        //& store, idk why
+                        //we can use it for the upload tho ;) !
+                        window.localStorage.setItem("editorPath2", path2.attr("d"));
+                        finalPath.attr({
+                          opacity: '1',
+                          fill: "blue"
+                        });
+                        imgHandle.forEach(function(el) {
+                          el.remove();
+                        })
+                        intersectHandler.forEach(function(el) {
+                          el.remove();
+                        })
+                      }
 
                     }
+                    //here we apply finalPath to the img.
+                    myImg.attr({
+                      clipPath: finalPath
+                    });
+                    //reset usableCut so we can draw again if necessary
+                    window.localStorage.setItem("usableCut", 0);
+                    path2.remove();
+                    path1.remove();
+                  });
+                  path2.click(function(event) {
 
-                    if (fiPClassification[0] == 0 && fiPClassification[1] == 1 && fiPClassification[2] == 0 && siPClassification[0] == 0 && siPClassification[1] == 0 && siPClassification[2] == 1) {
-                        path1 = ("M " + ixCorner[0] + " " + iyCorner[0] + " L " + intersectPointX[0] + " " + intersectPointY[0] + " " + intersectPointX[1] + " " + intersectPointY[1] + " " + ixCorner[3] + " " + iyCorner[3] + " Z");
-                        path2 = ("M " + ixCorner[1] + " " + iyCorner[1] + " L " + intersectPointX[0] + " " + intersectPointY[0] + " " + intersectPointX[1] + " " + intersectPointY[1] + " " + ixCorner[2] + " " + iyCorner[2] + " Z");
-
-                        if (Snap.path.isPointInside(path1, imgCx, imgCy)) {
-                            imgMask[m] = s.path(path1).attr({ fill: maskColor });
-                            imgHandle[1].attr({ fill: "rgba(0,0,0,0)" });
-                            imgHandle[2].attr({ fill: "rgba(0,0,0,0)" });
-                        } else if (Snap.path.isPointInside(path2, imgCx, imgCy)) {
-                            imgMask[m] = s.path(path2).attr({ fill: maskColor });
-                            imgHandle[0].attr({ fill: "rgba(0,0,0,0)" });
-                            imgHandle[3].attr({ fill: "rgba(0,0,0,0)" });
-                        }
-                        m++;
+                    if (window.localStorage.getItem("firstUse") == 1) {
+                      s.selectAll("tspan").forEach(function(tspan) {
+                        tspan.remove();
+                      });
+                      var helpie = s.text({
+                        text: ["Great :) !", "Go on, you can repeat now!"]
+                      }).attr({
+                        fill: "black",
+                        fontSize: "18px"
+                      }).selectAll("tspan").forEach(function(tspan, i) {
+                        tspan.attr({
+                          x: width * 0.05,
+                          y: (height * 0.05) * (i + 1),
+                          id: "txt" + i
+                        });
+                      });
+                      helpie.attr({
+                        'font-size': 20
+                      });
+                      window.localStorage.setItem("firstUse", 0);
                     }
 
-                    if (fiPClassification[0] == 1 && fiPClassification[1] == 0 && fiPClassification[2] == 0 && siPClassification[0] == 1 && siPClassification[1] == 1 && siPClassification[2] == 1) {
-                        path1 = ("M " + ixCorner[0] + " " + iyCorner[0] + " L " + ixCorner[1] + " " + iyCorner[1] + " " + intersectPointX[0] + " " + intersectPointY[0] + " " + intersectPointX[1] + " " + intersectPointY[1] + " Z");
-                        path2 = ("M " + ixCorner[3] + " " + iyCorner[3] + " L " + ixCorner[2] + " " + iyCorner[2] + " " + intersectPointX[0] + " " + intersectPointY[0] + " " + intersectPointX[1] + " " + intersectPointY[1] + " Z");
+                    if (window.localStorage.getItem("usableCut") == 1) {
+                      console.log("click on 2")
+                      this.attr({
+                        opacity: '1'
+                      });
+                      cUpdate = parseInt(window.localStorage.getItem("cuts")) + 1;
+                      window.localStorage.setItem("cuts", cUpdate);
+                      if (cUpdate == 1) {
+                        var finalPath = s.path(path1.attr("d"));
+                        window.localStorage.setItem("editorPath1", path1.attr("d"));
+                        myUndo.attr({
+                          opacity: 0.2
+                        });
+                        finalPath.attr({
+                          opacity: '1',
+                          fill: "red"
+                        });
+                        intersectHandler.forEach(function(el) {
+                          el.remove();
+                        })
+                      }
 
-                        if (Snap.path.isPointInside(path1, imgCx, imgCy)) {
-                            imgMask[m] = s.path(path1).attr({ fill: maskColor });
-                            imgHandle[2].attr({ fill: "rgba(0,0,0,0)" });
-                            imgHandle[3].attr({ fill: "rgba(0,0,0,0)" });
-                        } else if (Snap.path.isPointInside(path2, imgCx, imgCy)) {
-                            imgMask[m] = s.path(path2).attr({ fill: maskColor });
-                            imgHandle[0].attr({ fill: "rgba(0,0,0,0)" });
-                            imgHandle[1].attr({ fill: "rgba(0,0,0,0)" });
-                        }
-                        m++;
+                      if (cUpdate == 2) {
+                        var tempPath = s.path(path1.attr("d"));
+                        tempPath.attr({
+                          opacity: '1',
+                          fill: "red"
+                        });
+                        myUndo.attr({
+                          opacity: 0
+                        });
+                        finalPath = s.path(window.localStorage.getItem("editorPath1"));
+                        finalPath.attr({
+                          opacity: '1',
+                          fill: "red",
+                          clipPath: tempPath
+                        });
+                        window.localStorage.setItem("editorPath2", path1.attr("d"));
+                        finalPath.attr({
+                          opacity: '1',
+                          fill: "blue"
+                        });
+
+                        imgHandle.forEach(function(el) {
+                          el.remove();
+                        })
+                        intersectHandler.forEach(function(el) {
+                          el.remove();
+                        })
+                      }
+
+                      myImg.attr({
+                        clipPath: finalPath
+                      });
+                      // we reset the usableCut var, so we can draw again
+                      window.localStorage.setItem("usableCut", 0);
+                      path1.remove();
+                      path2.remove();
                     }
+                  });
 
-                    if (fiPClassification[0] == 1 && fiPClassification[1] == 1 && fiPClassification[2] == 0 && siPClassification[0] == 1 && siPClassification[1] == 0 && siPClassification[2] == 1) {
-                        path1 = ("M " + ixCorner[0] + " " + iyCorner[0] + " L " + ixCorner[1] + " " + iyCorner[1] + " " + intersectPointX[0] + " " + intersectPointY[0] + " " + intersectPointX[1] + " " + intersectPointY[1] + " Z");
-                        path2 = ("M " + ixCorner[3] + " " + iyCorner[3] + " L " + ixCorner[2] + " " + iyCorner[2] + " " + intersectPointX[0] + " " + intersectPointY[0] + " " + intersectPointX[1] + " " + intersectPointY[1] + " Z");
+                  //undoButton
 
-                        if (Snap.path.isPointInside(path1, imgCx, imgCy)) {
-                            imgMask[m] = s.path(path1).attr({ fill: maskColor });
-                            imgHandle[2].attr({ fill: "rgba(0,0,0,0)" });
-                            imgHandle[3].attr({ fill: "rgba(0,0,0,0)" });
-                        } else if (Snap.path.isPointInside(path2, imgCx, imgCy)) {
-                            imgMask[m] = s.path(path2).attr({ fill: maskColor });
-                            imgHandle[0].attr({ fill: "rgba(0,0,0,0)" });
-                            imgHandle[1].attr({ fill: "rgba(0,0,0,0)" });
-                        }
-                        m++;
+                  myUndo.click(function(event) {
+                    behaviour = window.localStorage.getItem("undoBehaviour");
+                    if (behaviour == "rmvPaths") {
+                      path1.remove();
+                      path2.remove();
+                      intersectHandler.forEach(function(el) {
+                        el.remove();
+                      })
+                      window.localStorage.setItem("usableCut", 0);
+                      myUndo.attr({
+                        opacity: 0.2
+                      });
                     }
-                    //console.log("got to post FI&SIP, got paths!.. ");
+                  })
 
-                    minusm = m - 1;
-                    //and here we add the mask to the exporting var:
-                    myMaskFrag[minusm] = imgMask[minusm].attr("d");
-
-                    if (touches == 2) {
-                        maskGroups.attr({ mask: imgMask[minusm] });
-                    }
-                    if (touches == 1) {
-                        maskGroups.add(imgMask[minusm]);
-                        maskGroups.attr({ fill: "white" });
-                        finalGroup = s.group(maskGroups, myImg);
-                        myImg.attr({ mask: maskGroups });
-                    }
-
-                }
-                if (touchCuts == 2) {
-                    //console.log("touchCuts =  2 !!")
-                    for (i = 0; i < 4; i++) {
-                        imgHandle[i].remove()
-                    }
-                    /*for(i=1; i<=touches; i++){
-                      myLine[i].remove()
-                    }*/
-                    $(".handleSwitcher").addClass("unseen");
-                    //myImgFrag = myImg.outerSVG();
-                    $("#mySvg").off("touchstart mousedown");
-                    $("#mySvg").off("touchmove mousemove");
-                    $("#mySvg").off("touchend touchcancel mouseup");
-                    finalGroup.data({ maskF0: myMaskFrag[0], maskF2: myMaskFrag[1], imgURI: myImg.attr("href"), imgX: myImg.attr("x"), imgY: myImg.attr("y"), imgW: myImg.attr("width"), imgH: myImg.attr("height") });
-                    finalGroup.ftCreateHandles();
-
-                    $("#editorHolder").css({ "overflow-y": "scroll" });
-                    $("#leNextStepper").css({ "display": "block" });
-
-
-                    //console.log(myImgFrag);
-                    //console.log(myMaskFrag);
-
-                    //$("#mySvg").off();
-                    //AND HERE, WE send the fragments & img data to the finalGroup
-
-                    //console.log("the data is: ");console.log(finalGroup.data());
-                    //  $("#mySvg").off( "touchend touchcancel mouseup", cutTouchEnd );
-                }
 
                 myLine[touches].remove();
                 Ls = 0;
                 for (Ls in myLine) {
                     myLine[Ls].remove();
-                }
+                };
                 //      	      touches = touches - 1;
 
                 gnStartX = "";
@@ -3043,170 +3761,383 @@ var app = {
                 gnEndY = "";
             });
 
-            $("#detailStep").on("touchend mouseup", function (event) {
 
-                $("#editorHolder").css({ "visibility": "hidden" });
-                $("#editorHelper").css({ "display": "none" });
-
-                $("#mySvg").css({ "visibility": "hidden" });
-                $("#mySvg").off("touchend touchcancel mouseup");
-
-                $("#detailsWindow").css({ "display": "block" });
-                $("#uploadMyPic").css({ "display": "block" });
-                $("#timerContainer").css({ "display": "none" });
-
-                //admob.cacheInterstitial();// load admob Interstitial
-
-                if (AdMob) AdMob.prepareInterstitial({ adId: 'ca-app-pub-5520633259009545/7928666319', autoShow: false });
-
-                $('#switchFDisplay').click(function (e) {
-                    e.preventDefault(); // The flicker is a codepen thing
-                    $(this).toggleClass('toggle-on');
-                });
-            })
-
-            $("#uploadMyPic").on("touchend mouseup", function (event) {
-                $("#uploadMyPic").css({ "display": "none" });
-                $("#timerContainer").css({ "display": "block" });
-
-                var nextPager = 0;
-
-                feedCheck = 0;
-                if ($('#feedCheck').is(':checked')) {
-                    feedCheck = 1;
-                }
-                fullImgCheck = 0;
-                if ($('#fullImgCheck').is(':checked')) {
-                    fullImgCheck = 1;
-                }
-
-                uploadPicDesc = $('#uploadPicDesc').val();
+            var $save = $('#moveMode');
+            $save.click(function()
+            {
+              window.localStorage.setItem("moveMode", 1);
+              //this is what we use to tell the img its time to update for update
+                  $(".handleSwitcher").addClass("unseen");
+                  //myImgFrag = myImg.outerSVG();
+                  //$("#mySvg").off("touchstart mousedown");
+                  $("#mySvg").off("touchmove mousemove");
+                  $("#mySvg").off("touchend touchcancel mouseup");
 
 
-                function uploadPhoto(imgH, imgW, imgX, imgY, imageURI, mask1, mask2, scale, angle, tx, ty, nextPager) {
-                    var options = new FileUploadOptions();
-                    options.fileKey = "file";
-                    options.fileName = imageURI.substr(imageURI.lastIndexOf('/') + 1);
-                    options.mimeType = "image/jpeg";
-                    window.localStorage.setItem("lastPhotoUploadFName", (imageURI.substr(imageURI.lastIndexOf('/') + 1)));
-
-                    userCalibration = parseFloat(window.localStorage.getItem("myCalibration"));
-                    sctpy = ty - (ty * userCalibration);
-
-                    if (window.localStorage.getItem("myCalibration") == "hateToMakeYouSadButUrOnUrOwn") {
-                        sctpy = ty;
-                    }
-                    window.localStorage.setItem("history", "feed");
-                    //console.log("Sending TY = "+sctpy+"\n");
-                    var params = new Object();
-                    params.user = window.localStorage.getItem("loggedAs");
-                    params.tracker = window.localStorage.getItem("tracker");
-                    params.uuid = device.uuid;
-                    params.devModel = device.version;
-                    params.devPlatform = device.platform;
-                    params.kollaj = "primary";
-                    params.imgH = imgH;
-                    params.imgW = imgW;
-                    params.imgX = imgX;
-                    params.imgY = imgY;
-                    params.mask1 = mask1;
-                    params.mask2 = mask2;
-                    params.angle = angle;
-                    params.scale = scale;
-                    params.tx = tx;
-                    params.ty = sctpy;
-                    params.nextPager = nextPager;
-                    params.feedCheck = feedCheck;
-                    params.fullImgCheck = fullImgCheck;
-                    params.uploadPicDesc = uploadPicDesc;
+                  /*
+                  //This is how we set data in  the past
+                  finalGroup.data({ maskF0: myMaskFrag[0], maskF2: myMaskFrag[1], imgURI: myImg.attr("href"), imgX: myImg.attr("x"), imgY: myImg.attr("y"), imgW: myImg.attr("width"), imgH: myImg.attr("height") });
 
 
-                    options.params = params;
-                    options.chunkedMode = false;
+                  //This is what makes the img transformable
+                  finalGroup.ftCreateHandles();
+                  */
+                  myImg.data({ maskF0: window.localStorage.getItem("path1"), maskF2: window.localStorage.getItem("path2"), imgURI: myImg.attr("href"), imgX: myImg.attr("x"), imgY: myImg.attr("y"), imgW: myImg.attr("width"), imgH: myImg.attr("height") });
+                  myImg.ftCreateHandles();
+                  $("#cutMode").css({ "background": "rgba(255,255,255,0)" });
+                  $("#moveMode").css({ "background": "white" });
 
-                    var ft = new FileTransfer();
-                    ft.upload(imageURI, "https://kollaj.net/bouncer.php", win, fail, options);
-                }
+                  $("#editorHolder").css({ "overflow-y": "scroll" });
+                  $("#leNextStepper").css({ "display": "block" });
 
-                function win(r) {
-                    // here we redirect the user to the uploaded image, dont forget this XD
 
-                    //          alert("Code = " + r.responseCode.toString()+"\n");
-                    //        $("#uploadPicDesc").val("Response = " + r.response.toString()+"\n");
-                    //          alert("Sent = " + r.bytesSent.toString()+"\n");
-                    //alert("Code Slayer!!!");
-                    var the400kwh = Math.floor(Math.random() * (42 - 1 + 1) + 1);
-                    //alert (the400kwh);
-                    if (the400kwh > 0) {
-                        if (AdMob) AdMob.showInterstitial();
+                  //console.log(myImgFrag);
+                  //console.log(myMaskFrag);
 
-                        window.localStorage.setItem("history", "feed");
-                        if (window.localStorage.getItem("modal") == 1) {
-                            window.localStorage.setItem("modal", 0);
-                            $modal = $('.modal-frame');
-                            $overlay = $('.modal-overlay');
-                            $overlay.removeClass('state-show');
-                            $modal.removeClass('state-appear').addClass('state-leave');
-                        }
+                  //$("#mySvg").off();
+                  //AND HERE, WE send the fragments & img data to the finalGroup
 
-                        $('#vibeView').css({ "display": "none" });
+                  //console.log("the data is: ");console.log(finalGroup.data());
+                  //  $("#mySvg").off( "touchend touchcancel mouseup", cutTouchEnd );
+            });
 
-                        if ($("#msg").is(":hidden")) { messageState = 0 } else { messageState = 1 }
-                        if ($("#vibes").is(":hidden")) { notificationState = 0 } else { notificationState = 1 }
-                        if ($("#chat").is(":visible")) { chatState = 1 } else { chatState = 0 }
 
-                        if (messageState == 1) { $("#msg").toggle() };
-                        if (notificationState == 1) { $("#vibes").toggle() };
-                        if (chatState == 1) { $("#chat").css({ "display": "none" }); $(".chatbox").css({ "display": "none" }) };
+                        $("#uploadMode").on("touchend mouseup", function (event) {
 
-                        $("#profile").css({ "display": "none" });
-                        $("#searchRes").css({ "display": "none" });
-                        $("#feed").css({ "display": "block" });
-                        $("#feedRes").css({ "display": "block" });
-                        $("#mySvg").css({ "display": "none" });
+                            $("#editorHolder").css({ "visibility": "hidden" });
+                            $("#editorHelper").css({ "display": "none" });
 
-                        var arr = { canYou: "showMeMyFeed", myName: window.localStorage.getItem("loggedAs"), tracker: window.localStorage.getItem("tracker"), uuid: device.uuid, devModel: device.version, devPlatform: device.platform, roffset: 0 };
-                        identify(arr);
+                            $("#mySvg").css({ "visibility": "hidden" });
+                            $("#mySvg").off("touchend touchcancel mouseup");
 
-                    }
+                            $("#detailsWindow").css({ "display": "block" });
+                            $("#uploadMyPic").css({ "display": "block" });
+                            $("#timerContainer").css({ "display": "none" });
 
-                    stopper = 2;
-                    $("#detailsWindow").css({ "display": "none" });
-                    $("#header").css({ "display": "block" });
-                    $("#mainNav").css({ "visibility": "visible" });
+                            //admob.cacheInterstitial();// load admob Interstitial
 
-                    $("#profile").css({ "display": "none" });
-                    $("#searchRes").css({ "display": "none" });
-                    $("#feed").css({ "display": "block" });
-                    $("#feedRes").css({ "display": "block" });
-                    $("#mySvg").css({ "display": "none" });
+                            if (AdMob) AdMob.prepareInterstitial({ adId: 'ca-app-pub-5520633259009545/7928666319', autoShow: false });
 
-                }
+                            $('#switchFDisplay').click(function (e) {
+                                e.preventDefault(); // The flicker is a codepen thing
+                                $(this).toggleClass('toggle-on');
+                            });
+                        })
 
-                // in case of error, we gotta say smth honestly lel SEE
-                function fail(error) {
-                    alert("An error has occurred: Code = " + error.code);
+                        $("#uploadMyPic").on("touchend mouseup", function (event) {
+                            $("#uploadMyPic").css({ "display": "none" });
+                            $("#timerContainer").css({ "display": "block" });
 
-                    window.localStorage.setItem("history", "feed");
+                            var nextPager = 0;
 
-                    var arr = { canYou: "showMeMyFeed", myName: window.localStorage.getItem("loggedAs"), tracker: window.localStorage.getItem("tracker"), uuid: device.uuid, devModel: device.version, devPlatform: device.platform, roffset: 0 };
-                    identify(arr);
+                            feedCheck = 0;
+                            if ($('#feedCheck').is(':checked')) {
+                                feedCheck = 1;
+                            }
+                            fullImgCheck = 0;
+                            if ($('#fullImgCheck').is(':checked')) {
+                                fullImgCheck = 1;
+                            }
 
-                    $("#profile").css({ "display": "none" });
-                    $("#searchRes").css({ "display": "none" });
-                    $("#feed").css({ "display": "block" });
-                    $("#feedRes").css({ "display": "block" });
-                    $("#mySvg").css({ "display": "none" });
+                            uploadPicDesc = $('#uploadPicDesc').val();
 
-                }
-                //console.log(window.localStorage.getItem("lastPhotoUploadFName")+ " and "+finalGroup.data("imgURI"));
-                if (window.localStorage.getItem("lastPhotoUploadFName") != (finalGroup.data("imgURI").substr(finalGroup.data("imgURI").lastIndexOf('/') + 1))) {
-                    uploadPhoto(finalGroup.data("imgH"), finalGroup.data("imgW"), finalGroup.data("imgX"), finalGroup.data("imgY"), finalGroup.data("imgURI"), finalGroup.data("maskF0"), finalGroup.data("maskF2"), finalGroup.data("scale"), finalGroup.data("angle"), finalGroup.data("tx"), finalGroup.data("ty"), nextPager);
-                    $("#uploadMyPic").off("touchend mouseup");
-                }
 
-                return false;
-            })
+                            function uploadPhoto(imgH, imgW, imgX, imgY, imageURI, mask1, mask2, scale, angle, tx, ty, nextPager) {
+                                var options = new FileUploadOptions();
+                                options.fileKey = "file";
+                                options.fileName = imageURI.substr(imageURI.lastIndexOf('/') + 1);
+                                options.mimeType = "image/jpeg";
+                                window.localStorage.setItem("lastPhotoUploadFName", (imageURI.substr(imageURI.lastIndexOf('/') + 1)));
+
+                                userCalibration = parseFloat(window.localStorage.getItem("myCalibration"));
+                                sctpy = ty - (ty * userCalibration);
+
+                                if (window.localStorage.getItem("myCalibration") == "hateToMakeYouSadButUrOnUrOwn") {
+                                    sctpy = ty;
+                                }
+                                window.localStorage.setItem("history", "feed");
+                                //console.log("Sending TY = "+sctpy+"\n");
+                                var params = new Object();
+                                params.user = window.localStorage.getItem("loggedAs");
+                                params.tracker = window.localStorage.getItem("tracker");
+                                params.uuid = device.uuid;
+                                params.devModel = device.version;
+                                params.devPlatform = device.platform;
+                                params.kollaj = "primary";
+                                params.imgH = imgH;
+                                params.imgW = imgW;
+                                params.imgX = imgX;
+                                params.imgY = imgY;
+                                params.mask1 = mask1;
+                                params.mask2 = mask2;
+                                params.angle = angle;
+                                params.scale = scale;
+                                params.tx = tx;
+                                params.ty = sctpy;
+                                params.nextPager = nextPager;
+                                params.feedCheck = feedCheck;
+                                params.fullImgCheck = fullImgCheck;
+                                params.uploadPicDesc = uploadPicDesc;
+
+
+                                options.params = params;
+                                options.chunkedMode = false;
+
+                                var ft = new FileTransfer();
+                                ft.upload(imageURI, "https://kollaj.net/bouncer.php", win, fail, options);
+                            }
+
+                            function win(r) {
+                                // here we redirect the user to the uploaded image, dont forget this XD
+
+                                //          alert("Code = " + r.responseCode.toString()+"\n");
+                                //        $("#uploadPicDesc").val("Response = " + r.response.toString()+"\n");
+                                //          alert("Sent = " + r.bytesSent.toString()+"\n");
+                                //alert("Code Slayer!!!");
+                                var the400kwh = Math.floor(Math.random() * (42 - 1 + 1) + 1);
+                                //alert (the400kwh);
+                                if (the400kwh > 0) {
+                                    if (AdMob) AdMob.showInterstitial();
+
+                                    window.localStorage.setItem("history", "feed");
+                                    if (window.localStorage.getItem("modal") == 1) {
+                                        window.localStorage.setItem("modal", 0);
+                                        $modal = $('.modal-frame');
+                                        $overlay = $('.modal-overlay');
+                                        $overlay.removeClass('state-show');
+                                        $modal.removeClass('state-appear').addClass('state-leave');
+                                    }
+
+                                    $('#vibeView').css({ "display": "none" });
+
+                                    if ($("#msg").is(":hidden")) { messageState = 0 } else { messageState = 1 }
+                                    if ($("#vibes").is(":hidden")) { notificationState = 0 } else { notificationState = 1 }
+                                    if ($("#chat").is(":visible")) { chatState = 1 } else { chatState = 0 }
+
+                                    if (messageState == 1) { $("#msg").toggle() };
+                                    if (notificationState == 1) { $("#vibes").toggle() };
+                                    if (chatState == 1) { $("#chat").css({ "display": "none" }); $(".chatbox").css({ "display": "none" }) };
+
+                                    $("#profile").css({ "display": "none" });
+                                    $("#searchRes").css({ "display": "none" });
+                                    $("#feed").css({ "display": "block" });
+                                    $("#feedRes").css({ "display": "block" });
+                                    $("#mySvg").css({ "display": "none" });
+
+                                    var arr = { canYou: "showMeMyFeed", myName: window.localStorage.getItem("loggedAs"), tracker: window.localStorage.getItem("tracker"), uuid: device.uuid, devModel: device.version, devPlatform: device.platform, roffset: 0 };
+                                    identify(arr);
+
+                                }
+
+                                stopper = 2;
+                                $("#detailsWindow").css({ "display": "none" });
+                                $("#header").css({ "display": "block" });
+                                $("#mainNav").css({ "visibility": "visible" });
+
+                                $("#profile").css({ "display": "none" });
+                                $("#searchRes").css({ "display": "none" });
+                                $("#feed").css({ "display": "block" });
+                                $("#feedRes").css({ "display": "block" });
+                                $("#mySvg").css({ "display": "none" });
+
+                            }
+
+                            // in case of error, we gotta say smth honestly lel SEE
+                            function fail(error) {
+                                alert("An error has occurred: Code = " + error.code);
+
+                                window.localStorage.setItem("history", "feed");
+
+                                var arr = { canYou: "showMeMyFeed", myName: window.localStorage.getItem("loggedAs"), tracker: window.localStorage.getItem("tracker"), uuid: device.uuid, devModel: device.version, devPlatform: device.platform, roffset: 0 };
+                                identify(arr);
+
+                                $("#profile").css({ "display": "none" });
+                                $("#searchRes").css({ "display": "none" });
+                                $("#feed").css({ "display": "block" });
+                                $("#feedRes").css({ "display": "block" });
+                                $("#mySvg").css({ "display": "none" });
+
+                            }
+                            //console.log(window.localStorage.getItem("lastPhotoUploadFName")+ " and "+finalGroup.data("imgURI"));
+                            if (
+                              window.localStorage.getItem("lastPhotoUploadFName") != (myImg.data("imgURI").substr(myImg.data("imgURI").lastIndexOf('/') + 1))
+                            ) {
+                                uploadPhoto(
+                                myImg.data("imgH"),
+                                myImg.data("imgW"),
+                                myImg.data("imgX"),
+                                myImg.data("imgY"),
+                                myImg.data("imgURI"),
+                                myImg.data("maskF0"),
+                                myImg.data("maskF2"),
+                                myImg.data("scale"),
+                                myImg.data("angle"),
+                                myImg.data("tx"),
+                                myImg.data("ty"),
+                                nextPager);
+                                $("#uploadMyPic").off("touchend mouseup");
+                            }
+
+                            return false;
+                        })
+                      }
+
+
+
+
+
+
+
+
+
+
+            /* As soon as slider value changes call applyFilters (each filter on its own for > efficiency)*/
+            //so we're gonna use Crosswalk now, hope this does boost efficiency & UX
+            //instead of each on its own, we're gonna do everything EXCEPT temperature control together
+            //temperature not included as I don't check their initial temperature
+
+            $('#exposure').change(applyFx);
+            function applyExp() {
+              var expsr = parseInt($('#exposure').val());
+              //console.log(expsr);
+              Caman('#fullImg', img, function() {
+              this.revert(false);
+              this.exposure(expsr);
+              this.render(function() {
+                 IMGEdit = 1;
+                 editDataURL = this.toBase64(type = "png");
+                 myImg.attr({href: editDataURL});
+               });
+             });
+          }
+
+            $('#contrast').change(applyFx);
+            function applyCntrst() {
+              var cntrst = parseInt($('#contrast').val());
+              cntrst = cntrst/10;
+              Caman('#fullImg', img, function() {
+              this.revert(false);
+              this.contrast(cntrst);
+              this.render(function() {
+                 IMGEdit = 1;
+                 editDataURL = this.toBase64(type = "png");
+                 myImg.attr({href: editDataURL});
+               });
+             });
+          }
+            $('#vibrance').change(applyFx);
+            function applyVib() {
+              var vbrnc = parseInt($('#vibrance').val());
+              Caman('#fullImg', img, function() {
+              this.revert(false);
+              this.vibrance(vbrnc);
+              this.render(function() {
+                 IMGEdit = 1;
+                 editDataURL = this.toBase64(type = "png");
+                 myImg.attr({href: editDataURL});
+               });
+             });
+          }
+            $('#saturation').change(applyFx);
+            function applySat() {
+              var sat = parseInt($('#saturation').val());
+              Caman('#fullImg', img, function() {
+              this.revert(false);
+              this.saturation(sat);
+              this.render(function() {
+                 IMGEdit = 1;
+                 editDataURL = this.toBase64(type = "png");
+                 myImg.attr({href: editDataURL});
+               });
+             });
+          }
+              $('#temperature').change(applyTemp);
+            function applyTemp() {
+              var temp = parseInt($('#temperature').val());
+              temp = temp + ((temp * temp) / 10000);
+              //we add this to keep consistency!
+              var expsr = parseInt($('#exposure').val());
+              var cntrst = parseInt($('#contrast').val());
+              var vbrnc = parseInt($('#vibrance').val());
+              var sat = parseInt($('#saturation').val());
+              var vgn = parseInt($('#vignette').val()).toString() + "%";
+
+              Caman('#fullImg', img, function() {
+                 this.revert(false);
+                 this.exposure(expsr);
+                 this.contrast(cntrst);
+                 this.vibrance(vbrnc);
+                 this.saturation(sat);
+                 this.whiteBalance(temp);
+                 this.vignette(vgn, 25);
+                 this.render(function() {
+                 IMGEdit = 1;
+                 editDataURL = this.toBase64(type = "png");
+                 myImg.attr({href: editDataURL});
+               });
+             });
+          }
+            $('#vignette').change(applyFx);
+            function applyVgn() {
+              var vgn = parseInt($('#vignette').val()).toString() + "%";
+              Caman('#fullImg', img, function() {
+              this.revert(false);
+              this.vignette(vgn, 25);
+              this.render(function() {
+                 IMGEdit = 1;
+                 editDataURL = this.toBase64(type = "png");
+                 myImg.attr({href: editDataURL});
+               });
+             });
+          }
+
+          function applyFx() { //this function is added to counter the problem with poo not updating properly
+              var expsr = parseInt($('#exposure').val());
+              var cntrst = parseInt($('#contrast').val());
+              var vbrnc = parseInt($('#vibrance').val());
+              var sat = parseInt($('#saturation').val());
+              var vgn = parseInt($('#vignette').val()).toString() + "%";
+
+            Caman('#fullImg', img, function() {
+              this.revert(false);
+              this.exposure(expsr);
+              this.contrast(cntrst);
+              this.vibrance(vbrnc);
+              this.saturation(sat);
+              this.vignette(vgn, 25);
+              this.render(function() {
+                 IMGEdit = 1;
+                 editDataURL = this.toBase64(type = "png");
+                 myImg.attr({href: editDataURL});
+               });
+             });
+          }
+
+          $(function() {
+            $("#tabs").tabs();
+            $(".percent").css("display", "none");
+            $("#filtersArrow").toggleClass("active");
+            $("#filtersSpan").slideToggle(180);
+            $("#tabsUl").slideToggle(180, function() {
+            $("#editImg").toggleClass("dropped")});
+            $(".tabs-content").slideToggle(200, function() {});
+
+          /*  $("#tabsUl").css("display", "none");
+            $(".tabs-content").css("display", "none");*/
+
+          });
+
+              $("#filtersHide").click(function() {
+
+              $("#filtersArrow").toggleClass("active");
+              $(".percent").slideToggle(180);
+              $("#filtersSpan").slideToggle(180);
+              $("#tabsUl").slideToggle(180, function() {
+              $("#editImg").toggleClass("dropped")});
+              $(".tabs-content").slideToggle(200, function() {});
+
+            });
+
 
         };
         function cutTouchStart(event, s, touches, centerPoint, myLine, gnStartX, gnStartY) {
