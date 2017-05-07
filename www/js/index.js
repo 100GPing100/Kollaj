@@ -1764,7 +1764,7 @@ var app = {
 
                         finalGroup = s.group(maskGroups, myImg);
 
-                        myImg.attr({ mask: maskGroups })
+                        myImg.attr({ mask: maskGroups, "opacity": 0.75 })
                         maskGroups.attr({ mask: mask2 });
 
                         maxWidth = width - (width / 9);
@@ -1789,6 +1789,7 @@ var app = {
                         moveGroup = s.group(finalGroup);
                         //          console.log("first move, follow secondmove");
                         moveGroup.transform('t' + lftDis + ',' + topDis + 's' + scl + 'r' + ang);
+
                         if (i == 0 && window.localStorage.getItem('kollajDistance') == 1) {
                             // moveGroup.remove()
                         }
@@ -1976,7 +1977,7 @@ var app = {
                     //and then pass it to the Hobbit :) (ref ==>) http://codepen.io/spacewalkingninja/full/yVwqWQ/
                     bringinTheEditor(imageData, this.width, this.height);
                 }
-                img.src="img/ALIEN_INVASION.jpg"
+                img.src=imageData;
                 //img.src = imageData;
 
             }
@@ -2300,11 +2301,18 @@ var app = {
                     var freetransEl = this;
                     var bb = freetransEl.getBBox(0);
                     var rotateDragger = this.paper.circle(bb.width - (ftOption.handleLength), bb.cy, ftOption.handleRadius).attr({
-                        fill: "rgba(59,89,152, 0.8)"
+                        fill: "rgba(59,89,152, 0.8)",
+                        strokeWidth: 7,
+                        stroke: "white",
+                        strokeLinecap: "round",
+                        strokeDasharray: 14
                     });
 
                     var translateDragger = this.paper.circle(bb.cx, bb.cy, ftOption.handleRadius).attr({
-                        fill: "rgba(59,89,152, 0.4)"
+                        fill: "rgba(214,0,110, 0.8)",
+                        strokeWidth: 2,
+                        stroke: "white",
+                        strokeLinecap: "round"
                     });
 
                     var joinLine = freetransEl.ftDrawJoinLine(rotateDragger);
@@ -2639,50 +2647,7 @@ var app = {
               return Math.sqrt(Math.pow((x1 - x2), 2) + Math.pow((y1 - y2), 2));
             }
 
-            function gridGen(wWidth, wHeight, s, colorA, colorB) {
-              function isEven(n) {
-                return n == parseFloat(n) ? !(n % 2) : void 0;
-              }
 
-              thirdWidth = wWidth / 6;
-              vl = new Array;
-              for (i = 1; i < 6; i++) {
-                if (isEven(i)) {
-                  color = colorA;
-                  sW = 2;
-                } else {
-                  color = colorB;
-                  sW = 1;
-                }
-                x1 = thirdWidth * i
-                y1 = 0
-                x2 = thirdWidth * i
-                y2 = wHeight;
-                vl[i] = s.line(x1, 0, thirdWidth * i, wHeight).attr({
-                  strokeWidth: sW,
-                  stroke: color,
-                  strokeLinecap: "round"
-                })
-              }
-              hl = new Array;
-              for (i = 1; i < 10; i++) {
-                if (isEven(i)) {
-                  color = colorA;
-                  sW = 2;
-                } else {
-                  color = colorB;
-                  sW = 1;
-                }
-                x1 = 0;
-                y1 = thirdWidth * i;
-                x2 = wWidth;
-                y2 = thirdWidth * i;
-                hl[i] = s.line(x1, y1, x2, y2).attr({
-                  strokeWidth: sW,
-                  stroke: color
-                })
-              }
-            }
 
 
 
@@ -2889,7 +2854,7 @@ var app = {
                               //IMPORTANT, HAVE TO CHANGE THIS!
                               var img = new Image();
                               img.crossOrigin = '';
-                              img.src="img/ALIEN_INVASION.jpg"
+                              img.src=photoSrc;
                             var width, height;
                               img.onload = function() {
 
@@ -2927,7 +2892,7 @@ var app = {
               var iyCenter = (height - imgHeight) / 2;
 
                 //put the grid in the thing
-              gridGen(width, height, s, "CornflowerBlue", "MediumTurquoise");
+              //gridGen(width, height, s, "CornflowerBlue", "MediumTurquoise");
 
               //we put, after the grid, the help text
               if (window.localStorage.getItem("firstUse") == 1) {
