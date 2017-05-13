@@ -26,20 +26,40 @@ var app = {
     // Bind any events that are required on startup. Common events are:
     // 'load', 'deviceready', 'offline', and 'online'.
     bindEvents: function () {
-        document.addEventListener('deviceready', this.onDeviceReady, false);
+        document.addEventListener('deviceready', () => {
+            window.FirebasePlugin.onNotificationOpen((notification) => {
+                console.log(":onNotificationOpen", notification);
+            }, (error) => {
+                console.error(error);
+            });
+            console.log("hello worasdasd");
+            window.FirebasePlugin.onTokenRefresh((token) => {
+                console.log("firebase ref: ", token);
+                console.log("loggedAs ref: ", window.localStorage.getItem("loggedAs"));
+                console.log("tracker  ref: ", window.localStorage.getItem("tracker"));
+                kollaj_firebaseRefresh(
+                    window.localStorage.getItem("loggedAs"),
+                    window.localStorage.getItem("tracker"),
+                    token,
+                    (data) => {
+                        console.log("cb ref: ", data);
+                        console.log("loggedAs cbref: ", window.localStorage.getItem("loggedAs"));
+                        console.log("tracker  cbref: ", window.localStorage.getItem("tracker"));
+                        this.onDeviceReady();
+                    });
+            }, (error) => {
+                console.log(":onTokenRefresh [error]: ", error);
+            })
+        }, false);
     },
     // deviceready Event Handler
     //
     // The scope of 'this' is the event. In order to call the 'receivedEvent'
     // function, we must explicitly call 'app.receivedEvent(...);'
     onDeviceReady: function () {
-        window.FirebasePlugin.onNotificationOpen((notification) => {
-            console.log(notification);
-        }, (error) => {
-            console.error(error);
-        });
-
         app.receivedEvent('deviceready');
+
+        console.log(window.FirebasePlugin);
 
         //        admob.initAdmob("ca-app-pub-5520633259009545/7928666319","ca-app-pub-5520633259009545/7928666319");
 

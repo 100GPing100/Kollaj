@@ -113,15 +113,18 @@ if ($data["canYou"] == "letMeIn") {
     kollaj_query("
         UPDATE register SET uniID='$newTracker'
         WHERE uid='$userID'
+        AND devUid='$deviceUUID'
+        AND devVer='$deviceModel'
+        AND devPlatform='$devicePlatform'
         AND uniID='$tracker'
     ");
 
-    kollaj_finish(array(
+    kollaj_finish([
         "success" => 1,
         "loginUser" => $username,
         "tracker" => $newTracker,
         "kollajDistance" => $kollajDistance,
-    ));
+    ]);
 }
 
 ?>

@@ -95,6 +95,17 @@ function kollaj_checklogin($username, $deviceUUID, $deviceModel, $devicePlatform
     $userID         = $row["ID"];
     $kollajDistance = $row["kollajDistance"];
 
+    kollaj_finish([
+        "username" => $username,
+        "deviceUUID" => $deviceUUID,
+        "deviceModel" => $deviceModel,
+        "devicePlatform" => $devicePlatform,
+        "tracker" => $tracker,
+        "result" => $result,
+        "row" => $row,
+        "userID" => $userID,
+    ]);
+
     $result->free();
     $result = kollaj_query("
         SELECT * FROM register
@@ -104,6 +115,8 @@ function kollaj_checklogin($username, $deviceUUID, $deviceModel, $devicePlatform
         AND devPlatform='$devicePlatform'
         AND uniID='$tracker'
     ");
+    
+    // test here now
 
     if ($result->num_rows == 0) {
         $result->free();
@@ -111,7 +124,8 @@ function kollaj_checklogin($username, $deviceUUID, $deviceModel, $devicePlatform
     }
 
     $result->free();
-    $newTracker = md5($deviceUUID . "" . rand());
+    //$newTracker = md5($deviceUUID . "" . rand());
+    $newTracker = $tracker;
 
     kollaj_query("
         UPDATE register SET uniID='$newTracker'
@@ -124,6 +138,23 @@ function kollaj_checklogin($username, $deviceUUID, $deviceModel, $devicePlatform
         "kollajDistance" => $kollajDistance,
         "tracker" => $newTracker,
     );
+}
+
+function kollaj_notif($token, $title, $body, $action) {
+    $context = stream_context_create([
+        "http" => [
+            "method" => "POST",
+            "header" => "Content-Type: application/json",
+            "content" => json_encode([
+                "token" => $token,
+                "title" => $title,
+                "body" => $body,
+                "action" => $action,
+            ]),
+        ]
+    ]);
+
+    return json_decode(file_get_contents("http://localhost:8080/notify", false, $context));
 }
 
 

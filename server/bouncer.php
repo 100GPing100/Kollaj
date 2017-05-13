@@ -1,43 +1,9 @@
 <?php
-if (isset($_SERVER['HTTP_ORIGIN'])) {
-   header("Access-Control-Allow-Origin: {$_SERVER['HTTP_ORIGIN']}");
-   header('Access-Control-Allow-Credentials: true');
-}
-if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+//====================================================
+// Copyright (c) 2016-2017 Kristian Atanasov
+// Copyright (c) 2017 Luís Guimarães
 
-   if (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_METHOD']))
-       header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
-
-   if (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS']))
-       header("Access-Control-Allow-Headers:{$_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS']}");
-
-   exit(0);
-}
-header("Access-Control-Allow-Origin", "*");
-header("Access-Control-Allow-Methods", "POST, GET");
-header("Access-Control-Max-Age", "3600");
-header("Access-Control-Allow-Headers", "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
-// HEADERS SENT
-mb_internal_encoding('UTF-8');
-//TRY SETTING THE ENCODING TO ALWAYS BE UTF-8
-// NOW CONNECT TO DB
-define('DB_SERVER', 'localhost');
-define('DB_USERNAME', 'root');
-define('DB_PASSWORD', 'kollajGribz');
-define('DB_DATABASE', 'kollaj');
-$db = mysqli_connect(DB_SERVER,DB_USERNAME,DB_PASSWORD,DB_DATABASE);
-global $db;
-
-//Ok, functions space is here
-
-function killDaHackerz($string) {
-  global $db;
-    $string = mysqli_real_escape_string($db, $string);
-    $string = htmlspecialchars($string);
-    return $string;
-}
-
-//and no more special functions
+require "init-api.php";
 
 
 /*$array = array(
