@@ -970,17 +970,31 @@ var app = {
 
             //Crossbrowser window Width
             var width = document.getElementById("feedRes").clientWidth;
+            window.localStorage.setItem("feedWidth", width)
             //Crossbrowser window Height
             //Clear everything beforehand
             $("#feedRes").html("");
             var i = 0;
+            var resDefsPool = "";
+            var resPool = "";
+            var tH = 0;
             function welderEmbeddedFP(ih, iw, ix, iy, iURI, m1, m2, ang, scl, itx, ity, i, feedUname) {
                 var height = document.getElementById("FeedSVG" + i).clientHeight;
                 var s = Snap("#FeedSVG" + i);
                 s.clear();//just add this piece of magic....
                 var myImg = s.image(iURI, ix, iy, iw, ih);
+                var myRect = s.rect(ix, iy, iw, ih);
+
                 var mask1 = s.path(m1).attr({ fill: "white" });
                 var mask2 = s.path(m2).attr({ fill: "white" });
+
+                var anotherMask1 = s.path(m1).attr({fill:"white"});
+                var anotherMask2 = s.path(m2).attr({fill:"white"});
+
+
+                anotherMask2.attr({clipPath:anotherMask1})
+                myRect.attr({clipPath:anotherMask2});
+
                 var maskGroups = s.group()
 
                 maskGroups.add(mask1);
@@ -989,10 +1003,14 @@ var app = {
                 finalGroup = s.group(maskGroups, myImg);
 
                 myImg.attr({ mask: maskGroups })
+                //myRect.attr({mask:maskGroups});
                 maskGroups.attr({ mask: mask2 });
 
+
+
                 maxWidth = width;
-                scaleF = maxWidth / iw;
+                var scaleF = maxWidth / iw;
+                var tOscaleF = scaleF / 10 ;
                 lftDis = itx * scaleF;
                 topDis = ity * scaleF;
                 absXCenter = (width / 2);
@@ -1003,6 +1021,527 @@ var app = {
                 var diffY = absYCenter - bb.cy;
 
                 finalGroup.transform('T' + diffX + ',' + diffY + 'S' + scaleF + 'R' + ang);
+                myRect.transform('T' + diffX + ',' + diffY + 'S' + scaleF + 'R' + ang);
+                var bb = myRect.getBBox();
+                var pass=0;
+                function checkSize()
+                {
+                  var bb = myRect.getBBox();
+                    //console.log(scaleF);
+                  if (bb.height > bb.width)
+                  {
+                    if(bb.height > 393)
+                    {
+                      scaleF = scaleF - 0.02;
+                      finalGroup.transform('T' + diffX + ',' + diffY + 'S' + scaleF + 'R' + ang);
+                      myRect.transform('T' + diffX + ',' + diffY + 'S' + scaleF + 'R' + ang);
+                      checkSize();
+                    }
+                    if(bb.height < 93)
+                    {
+                      scaleF = scaleF + 0.02;
+                      finalGroup.transform('T' + diffX + ',' + diffY + 'S' + scaleF + 'R' + ang);
+                      myRect.transform('T' + diffX + ',' + diffY + 'S' + scaleF + 'R' + ang);
+                      checkSize();
+                    }
+                  }
+                  if(bb.width > 300)
+                  {
+                    scaleF = scaleF - 0.02;
+                    finalGroup.transform('T' + diffX + ',' + diffY + 'S' + scaleF + 'R' + ang);
+                    myRect.transform('T' + diffX + ',' + diffY + 'S' + scaleF + 'R' + ang);
+                    checkSize();
+                  }
+                  if(bb.width < 200)
+                  {
+                    scaleF = scaleF + 0.02;
+                    finalGroup.transform('T' + diffX + ',' + diffY + 'S' + scaleF + 'R' + ang);
+                    myRect.transform('T' + diffX + ',' + diffY + 'S' + scaleF + 'R' + ang);
+                    checkSize();
+                  }
+
+
+
+                }
+                checkSize();
+                  var bb = myRect.getBBox();
+                tH = tH + bb.height;
+                transformVar = myRect.attr("transform");
+
+                var soTheSveGeIs = '<svg width="77px" height="100px" viewBox="-5 -5 305 398" preserveAspectRatio="xMinYMin" >'+
+                '<defs>'+
+                '<clipPath id="clipPath0"> <path d="'+m1+'" ></path> </clipPath>'+
+                '<clipPath id="clipPath1"> <path d="'+m2+'" ></path> </clipPath>'+
+                '<clipPath id="clipPath2"> <path d="'+m1+'" ></path> <path d="'+m2+'"></path> </clipPath>'+
+                '<mask id="mask2"><g fill="#ffffff" mask="url('+"'#mask1'"+')"><path d="'+m2+'" fill="#ffffff"></path></g></mask>'+
+                '<mask id="mask1"><path d="'+m1+'" fill="#ffffff"></path></mask>'+
+                '</defs>'+
+                '<rect x="-20" y="-20" width="'+420+'" height="'+420+'" fill="#fff" > </rect>'+
+                '<g transform="matrix('+
+                transformVar.totalMatrix.a+','+
+                transformVar.totalMatrix.b+','+
+                transformVar.totalMatrix.c+','+
+                transformVar.totalMatrix.d+','+
+                transformVar.totalMatrix.e+','+
+                transformVar.totalMatrix.f+
+                ')">'+
+                '<rect x="'+ix+'" y="'+iy+'" width="'+iw+'" height="'+ih+'" mask="url('+"'#mask2'"+')" fill="#000" > </rect>'+
+                '</g>'+
+                '</svg>';
+                //console.log(soTheSveGeIs);
+//
+
+                canvg(document.getElementById('workCanvas'), soTheSveGeIs);
+
+
+                var timg = document.getElementById('workCanvas').toDataURL("image/jpeg");
+
+                var rimg = new Image(),
+                scale = 1;
+                rimg.crossOrigin = 'anonymous';
+                rimg.src = timg;
+                rimg.onload = function() {
+                  //potrace.turnPolicy = 2;
+                  veridicScaleF = scaleF;
+
+                  if(scaleF > 2 && scaleF < 10)
+                  {
+                    veridicScaleF = 1 + (scaleF/10)
+                  }
+
+                  if(scaleF > 10 )
+                  {
+                    veridicScaleF = 1 + (scaleF/100)
+                  }
+
+                  if (scaleF < 0.5)
+                  {
+                    veridicScaleF = scaleF + 0.8
+                  }
+
+                  res = potrace.fromImage(rimg).toSVG((3*veridicScaleF), ('potrace'+i), '0,0,0,0', [20, (i*200), 0] );
+
+                  resDefsPool = resDefsPool + ' <pattern id="theMask'+i+'" patternUnits="userSpaceOnUse" width="'+iw+'" height="'+ih+'"> <image xlink:href="'+iURI+'" x="'+ix+'" y="'+iy+'" width="'+iw+'" height="'+ih+'" /> </pattern>';
+                  resPool = resPool +""+ res;
+                  if (i == (obj.feedRes.length - 1))
+                  {
+                    console.log(resDefsPool);
+                    console.log(resPool);
+                      newFeed = document.getElementById('feedRes').innerHTML = "<div id='select'> </div> <div id='bins'> </div>";
+                      var myContraption=''+
+                      '<?xml version="1.0" encoding="utf-8"?>'+
+                      '<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd" ['+
+                      '	<!ENTITY ns_svg "http://www.w3.org/2000/svg">'+
+                      '	<!ENTITY ns_xlink "http://www.w3.org/1999/xlink">'+
+                      ']>'+
+                      '<svg  version="1.1" id="Layer_1" class="feedLayer" xmlns="&ns_svg;" xmlns:xlink="&ns_xlink;" overflow="visible" xml:space="preserve" style="height: '+ parseInt(tH) +'px;">'+
+                      '<defs></defs>'+
+                      '<rect x="0" y="0" width="340" height="'+parseInt(tH)+'" id="bin" fill="white"> </rect>'+
+                      resPool +
+                      '</svg>';
+                      //ok so this is the place where we'll place the svgNest
+
+                      function ready(fn){
+                  			if (document.readyState != 'loading'){
+                  				fn();
+                  			}
+                  			else {
+                  				document.addEventListener('DOMContentLoaded', fn);
+                  			}
+                  		}
+
+                  		ready(function(){
+
+                    var display = document.getElementById('select');
+
+
+
+              			if(!document.createElementNS || !document.createElementNS('http://www.w3.org/2000/svg', 'svg').createSVGRect){
+              				alert ('Your browser does not have SVG support');
+              				return
+              			}
+
+              			if (!window.SvgNest) {
+              				alert("Couldn't initialize SVGnest");
+              				return;
+              			}
+
+              			if(!window.File || !window.FileReader){
+              				alert('Your browser does not have file upload support');
+              				return
+              			}
+
+              			if(!window.Worker){
+              				alert('Your browser does not have web worker support');
+              				return
+              			}
+
+              			// button clicks
+
+
+              			var isworking = false;
+                    /*
+              			start.onclick = function(){
+              				if(this.className == 'button start disabled'){
+              					return false;
+              				}
+              				iterations = 0;
+              				if(isworking){
+              					stopnest();
+              				}
+              				else{
+              					startnest();
+              				}
+
+              				display.className = 'disabled';
+              				//document.getElementById('info_time').setAttribute('style','display: none');
+              			};
+                    */
+              			function startnest(){
+              				SvgNest.start(progress, renderSvg);
+              				startlabel.innerHTML = 'Stop Nest';
+
+              				var svg = document.querySelector('#select svg');
+              				/*if(svg){
+              					svg.removeAttribute('style');
+              				}*/
+              				isworking = true;
+              			}
+
+              			function stopnest(){
+              				SvgNest.stop();
+              				isworking = false;
+                      if(iterations == 2)
+                      {
+                        console.log("ok we can assume control!");
+                        iterations = 0;
+                        var select = document.getElementById('select');
+                				select.innerHTML = '';
+
+                        //var height = document.getElementById("FeedSVG" + i).clientHeight;
+                        var s = Snap("#Layer_1");
+
+                        function awe (iuri, iX, iY, iW, iH, msk1, msk2, k, ang)
+                        {
+                            var myImg = s.image(iuri, iX, iY, iW, iH);
+
+                            var mask1 = s.path(msk1).attr({ fill: "white" });
+                            var mask2 = s.path(msk2).attr({ fill: "white" });
+
+
+                            editGroup = s.select('#nested'+k)
+                            //var matrixObj = new Snap.Matrix();
+                            /*
+                            matrixObj = editGroup.transform();
+                            alert (matrixObj);
+                            finalGroup.transform(matrixObj);
+                            */
+                            maxWidth = window.localStorage.getItem("feedWidth");
+                            //var tOscaleF = iSF / 10 ;
+
+                            //absXCenter = (width / 2);
+                            //absYCenter = (height / 2);
+
+                            //var bb = finalGroup.getBBox();
+                            //var diffX = absXCenter - bb.cx;
+                            //var diffY = absYCenter - bb.cy;
+
+                            //finalGroup.transform('T ' + ',' + k*200 + 'S' + scaleF + 'R' + 0);
+                            var maskGroups = s.group()
+
+                            maskGroups.add(mask1);
+                            maskGroups.attr({ fill: "white" });
+
+                            finalGroup = s.group(maskGroups, myImg);
+
+
+
+
+
+                            bb = finalGroup.getBBox();
+                            ebb = editGroup.getBBox();
+                            var tx = ebb.cx - bb.cx;
+                            var ty = ebb.cy - bb.cy;
+                            var scaleF = ebb.w / bb.w;
+                            var att = 0;
+                            matrixObj = editGroup.transform().localMatrix.split();
+                            var rstr = matrixObj.rotate;
+
+                            finalGroup.transform('T ' + tx + ',' + ty + 'S' + scaleF + 'R' + ang);
+
+                                  scaleF = ebb.w / bb.w;
+
+                            finalGroup.transform('T ' + tx + ',' + ty + 'S' + scaleF + 'R' + rstr);
+
+
+
+                            mask2.attr({ clipPath: mask1});
+
+                            myImg.attr({ clipPath : mask2 });
+
+
+                              //editGroup.add(finalGroup);
+                            //myImg.attr({ mask: maskGroups });
+                            //myRect.attr({mask:maskGroups});
+                            //maskGroups.attr({ mask: mask2 });
+
+                            //maxWidth = width;
+                            //var scaleF = maxWidth / iw;
+                            //var tOscaleF = scaleF / 10 ;
+                            //lftDis = itx * scaleF;
+                            //topDis = ity * scaleF;
+                            //absXCenter = (width / 2);
+                            //absYCenter = (height / 2);
+
+                            //var bb = finalGroup.getBBox();
+                            //var diffX = absXCenter - bb.cx;
+                            //var diffY = absYCenter - bb.cy;
+
+                            //finalGroup.transform('T' + diffX + ',' + diffY + 'S' + scaleF + 'R' + ang);
+                        }
+                        var arr2 = obj.feedRes
+                        for (k in arr2)
+                        {
+                          //welderEmbeddedFP(arr2[i].imgH, arr[i].imgW, arr[i].imgX, arr[i].imgY, arr[i].imgpath, arr[i].mask1, arr[i].mask2, arr[i].angle, arr[i].scale, arr[i].tx, arr[i].ty, i, arr[i].feedUName);
+                          awe (arr2[k].imgpath, arr2[k].imgX, arr2[k].imgY, arr2[k].imgW, arr2[k].imgH, arr2[k].mask1, arr2[k].mask2, k, arr2[k].angle)
+                        }
+
+
+
+
+                      }
+              			}
+
+              			// config
+                    /*
+              			var configvisible = false;
+              			configbutton.onclick = function(){
+              				if(this.className == 'button config disabled'){
+              					return false;
+              				}
+              				if(!configvisible){
+              					config.className = 'active';
+              					configbutton.className = 'button close';
+              				}
+              				else{
+              					config.className = '';
+              					configbutton.className = 'button config';
+              				}
+              				configvisible = !configvisible;
+
+              				return false;
+              			}*/
+
+              			/*
+                    configsave.onclick = function(){
+              				var c = {};
+              				var inputs = document.querySelectorAll('#config input');
+              				for(var i=0; i<inputs.length; i++){
+              					var key = inputs[i].getAttribute('data-config');
+              					if(inputs[i].getAttribute('type') == 'text'){
+              						c[key] = inputs[i].value;
+              					}
+              					else if(inputs[i].getAttribute('type') == 'checkbox'){
+              						c[key] = inputs[i].checked;
+              					}
+              				}
+
+              				window.SvgNest.config(c);
+
+              				// new configs will invalidate current nest
+              				if(isworking){
+              					stopnest();
+              				}
+              				configvisible = false;
+              				config.className = '';
+              				return false;
+              			}
+                    */
+
+
+              			function startNesting(esVeGe){
+              			try{
+              				var svg = window.SvgNest.parsesvg(esVeGe);
+              				display.innerHTML = '';
+              				display.appendChild(svg);
+              			}
+              			catch(e){
+              				alert(e);
+              				return;
+              			}
+              			attachSvgListeners(svg);
+              			}
+                    startNesting (myContraption);
+
+              			function attachSvgListeners(svg){
+              				// attach event listeners
+              				for(var i=0; i<svg.childNodes.length; i++){
+              					var node = svg.childNodes[i];
+              					if(node.nodeType == 1){
+                					if (node.id == "bin")
+                					{
+                						window.SvgNest.setbin(node);
+                						node.setAttribute('class','active');
+                					}
+              					}
+              				}
+              				if (!isworking)
+              				{
+              				iterations = 0;
+              				isworking = false ;
+              				SvgNest.start(progress, renderSvg);
+              				var svg = document.querySelector('#select svg');
+              				/*if(svg){
+              					svg.removeAttribute('style');
+              				}*/
+
+              				isworking = true;
+              				alert ("startingnest");
+              				}
+              			}
+
+              			var prevpercent = 0;
+              			var startTime = null;
+
+              			function progress(percent){
+              				var transition = percent > prevpercent ? '; transition: width 0.1s' : '';
+                      console.log(Math.round(percent*100)+'% ');
+              				//document.getElementById('info_progress').setAttribute('style','width: '+Math.round(percent*100)+'% ' + transition);
+              				//document.getElementById('info').setAttribute('style','display: block');
+
+              				prevpercent = percent;
+
+              				var now = new Date().getTime();
+              				if(startTime && now){
+              					var diff = now-startTime;
+              					// show a time estimate for long-running placements
+              					var estimate = (diff/percent)*(1-percent);
+                        console.log( millisecondsToStr(estimate)+' remaining');
+              					//document.getElementById('info_time').innerHTML = millisecondsToStr(estimate)+' remaining';
+
+              					if(diff > 5000 && percent < 0.3 && percent > 0.02 && estimate > 10000){
+                          console.log('too long!');
+              						//document.getElementById('info_time').setAttribute('style','display: block');
+              					}
+              				}
+
+              				if(percent > 0.95 || percent < 0.02){
+              					//document.getElementById('info_time').setAttribute('style','display: none');
+              				}
+              				if(percent < 0.02){
+              					startTime = new Date().getTime();
+              				}
+              			}
+
+              			var iterations = 0;
+
+              			function renderSvg(svglist, efficiency, numplaced){
+              				iterations++;
+                      console.log("iteration: "+iterations);
+              				//document.getElementById('info_iterations').innerHTML = iterations;
+
+              				if(!svglist || svglist.length == 0){
+              					return;
+              				}
+              				var bins = document.getElementById('bins');
+              				bins.innerHTML = '';
+
+              				for(var i=0; i<svglist.length; i++){
+              					if(svglist.length > 2){
+              						svglist[i].setAttribute('class','grid');
+              					}
+              					bins.appendChild(svglist[i]);
+              				}
+
+              				if(efficiency || efficiency === 0){
+                        console.log("occupied percentage:" + Math.round(efficiency*100))
+              					//document.getElementById('info_efficiency').innerHTML = Math.round(efficiency*100);
+              				}
+
+              				//document.getElementById('info_placed').innerHTML = numplaced;
+                      console.log("placed items:" + numplaced)
+              				//document.getElementById('info_placement').setAttribute('style','display: block');
+              				//display.setAttribute('style','display: none');
+              				//download.className = 'button download animated bounce';
+
+              				if(isworking && iterations == 1){
+              					stopnest();
+
+              					var c = {
+              						clipperScale: 10000000,
+              						curveTolerance: 0.3,
+              						spacing: 10,
+              						rotations: 4,
+              						populationSize: 30,
+              						mutationRate: 25,
+              						useHoles: false,
+              						exploreConcave: false
+              					};
+
+              					window.SvgNest.config(c);
+
+              					// new configs will invalidate current nest
+
+              					SvgNest.start(progress, renderSvg);
+              					var svg = document.querySelector('#select svg');
+              					/*if(svg){
+              						svg.removeAttribute('style');
+              					}*/
+              					alert ("gonna take a break!")
+              					isworking = true;
+              				}
+              				if(isworking && iterations == 2){
+              					stopnest();
+              					alert ("ok, stopping");
+              					console.log(svg);
+              				}
+
+              			}
+
+
+              			function millisecondsToStr (milliseconds) {
+              				function numberEnding (number) {
+              					return (number > 1) ? 's' : '';
+              				}
+
+              				var temp = Math.floor(milliseconds / 1000);
+              				var years = Math.floor(temp / 31536000);
+              				if (years) {
+              					return years + ' year' + numberEnding(years);
+              				}
+              				var days = Math.floor((temp %= 31536000) / 86400);
+              				if (days) {
+              					return days + ' day' + numberEnding(days);
+              				}
+              				var hours = Math.floor((temp %= 86400) / 3600);
+              				if (hours) {
+              					return hours + ' hour' + numberEnding(hours);
+              				}
+              				var minutes = Math.floor((temp %= 3600) / 60);
+              				if (minutes) {
+              					return minutes + ' minute' + numberEnding(minutes);
+              				}
+              				var seconds = temp % 60;
+              				if (seconds) {
+              					return seconds + ' second' + numberEnding(seconds);
+              				}
+              				return 'less than a second';
+              			}
+                  });
+
+
+
+
+
+                  }
+                }
+                console.log("try "+i);
+
+//                console.log(resPool);
+
+
+               $("#feedRes").append('<img style="max-width:100%; max-height:100%; position:relative;" src="'+timg+'"/>');
+                //  console.log(soTheSveGeIs)
 
                 moveGroup = s.group(finalGroup);
 
