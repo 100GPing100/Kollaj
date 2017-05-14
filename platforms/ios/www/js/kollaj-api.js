@@ -54,3 +54,12 @@ function kollaj_usernameCheck(username, callback) {
         username:   username,
     }, callback);
 }
+
+function kollaj_firebaseRefresh(username, tracker, token, callback) {
+    kollaj_request("notif", {
+        canYou:     "saveMyToken",
+        username:   username,
+        tracker:    tracker,
+        token:      token,
+    }, callback);
+}

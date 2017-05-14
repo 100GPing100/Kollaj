@@ -69,13 +69,13 @@
         },
         "cordova-plugin-firebase": {
             "PACKAGE_NAME": "net.kollaj"
+        },
+        "cordova-plugin-file": {
+            "PACKAGE_NAME": "net.kollaj"
         }
     },
     "dependent_plugins": {
         "cordova-plugin-compat": {
-            "PACKAGE_NAME": "net.kollaj"
-        },
-        "cordova-plugin-file": {
             "PACKAGE_NAME": "net.kollaj"
         },
         "cordova-plugin-extension": {

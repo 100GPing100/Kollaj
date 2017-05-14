@@ -32,19 +32,13 @@ var app = {
             }, (error) => {
                 console.error(error);
             });
-            console.log("hello worasdasd");
+
             window.FirebasePlugin.onTokenRefresh((token) => {
-                console.log("firebase ref: ", token);
-                console.log("loggedAs ref: ", window.localStorage.getItem("loggedAs"));
-                console.log("tracker  ref: ", window.localStorage.getItem("tracker"));
                 kollaj_firebaseRefresh(
                     window.localStorage.getItem("loggedAs"),
                     window.localStorage.getItem("tracker"),
                     token,
                     (data) => {
-                        console.log("cb ref: ", data);
-                        console.log("loggedAs cbref: ", window.localStorage.getItem("loggedAs"));
-                        console.log("tracker  cbref: ", window.localStorage.getItem("tracker"));
                         this.onDeviceReady();
                     });
             }, (error) => {

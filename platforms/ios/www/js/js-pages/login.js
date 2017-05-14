@@ -12,7 +12,7 @@ function tosButton_onclick(yesno) {
 
 function btnLogin_onclick() {
     kollaj_login(
-        $('#loginName').val(),
+        $('#loginName').val().toLowerCase(),
         $('#loginPassword').val(),
         (data) => {
             if (data.success) {
@@ -105,7 +105,7 @@ var app = {
         $('#registerEmail').on('change paste keyup', function() {
             //var expr = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
             var expr = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/m;
-            var email = $(this).val();
+            var email = $(this).val().toLowerCase();
 
             if ((emailPass = expr.test(email))) {
                 kollaj_emailCheck(
@@ -124,7 +124,7 @@ var app = {
         });
 
         $('#registerName').on('change paste keyup', function() {
-            var username = $(this).val();
+            var username = $(this).val().toLowerCase();
 
             userPass = (username.length > 3);
             $(this).css(userPass
