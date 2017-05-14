@@ -26,19 +26,26 @@ var app = {
     // Bind any events that are required on startup. Common events are:
     // 'load', 'deviceready', 'offline', and 'online'.
     bindEvents: function () {
+        document.addEventListener('deviceready', this.onDeviceReady, false);
         document.addEventListener('deviceready', () => {
             window.FirebasePlugin.onNotificationOpen((notification) => {
                 console.log(":onNotificationOpen", notification);
             }, (error) => {
                 console.error(error);
             });
-
+            console.log("hello worasdasd");
             window.FirebasePlugin.onTokenRefresh((token) => {
+                /*console.log("firebase ref: ", token);
+                console.log("loggedAs ref: ", window.localStorage.getItem("loggedAs"));
+                console.log("tracker  ref: ", window.localStorage.getItem("tracker"));*/
                 kollaj_firebaseRefresh(
                     window.localStorage.getItem("loggedAs"),
                     window.localStorage.getItem("tracker"),
                     token,
-                    (data) => {
+                    (data) => {/*
+                        console.log("cb ref: ", data);
+                        console.log("loggedAs cbref: ", window.localStorage.getItem("loggedAs"));
+                        console.log("tracker  cbref: ", window.localStorage.getItem("tracker"));*/
                         this.onDeviceReady();
                     });
             }, (error) => {
