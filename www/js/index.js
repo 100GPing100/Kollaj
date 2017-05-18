@@ -1639,8 +1639,11 @@ var app = {
                     imgImRequing = $(this).data("postph");
                     theImg = imgImRequing.substring(imgImRequing.lastIndexOf('/') + 1);
                     var arr = { canYou: "letMeBeSneaky", myName: window.localStorage.getItem("loggedAs"), postImage: theImg, tracker: window.localStorage.getItem("tracker"), uuid: device.uuid, devModel: device.version, devPlatform: device.platform };
-                    identify(arr);
-                    $('#vibeView').css({ "display": "block" });
+                    if(!$(this).hasClass("level0"))
+                    {
+                      identify(arr);
+                      $('#vibeView').css({ "display": "block" });
+                    }
                     window.localStorage.setItem("history", "feed");
 
                 });
