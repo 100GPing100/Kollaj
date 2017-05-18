@@ -435,19 +435,46 @@ var app = {
             $chatThing = $("#theChatThing");
             $chatThing.html("");
 
+            $("#chatForm").on('focus', ":input:visible:enabled:first", function () {
+              $("#writeBox").animate({height:"7.5em"},200);
+              $("#chatInput").animate({height:"5em"},200);
+            });
+            $("#chatForm").on('focusout', ":input:visible:enabled:first", function () {
+              $("#writeBox").animate({height:"5em"},200);
+              $("#chatInput").animate({height:"1em"},200);
+            });
+
+            $("#contactNameFbar").one('click', function() {
+
+                var arr = { canYou: "showMeSomeProfile", myName: window.localStorage.getItem("loggedAs"), seeProfile: window.localStorage.getItem("msgSendTo"), tracker: window.localStorage.getItem("tracker"), uuid: device.uuid, devModel: device.version, devPlatform: device.platform, proffset: window.localStorage.getItem("mproffset") };
+                identify(arr);
+                $("#msg").toggle()
+                $("#chat").css({ "display": "none" });
+                $(".chatbox").css({ "display": "none" })
+              });
+
             var arr = obj.hahaOkUCanTry;
             for (i in arr) {
+              firstOfKind=0;
                 //console.log("here...");
                 if (arr[i].guilty != 1) {
                     username = arr[i].uname;
                     window.localStorage.setItem("msgSendTo", username);
-                    style = "style='color:crimson;'";
+                    style = "class='crimson'"; // crimsons are not blue
+                    if(firstOfKind == 0)
+                    {
+                      firstOfKind=1;
+                      $("#contactNameFbar").html("#" + username);
+
+                    }
                 }
                 else {
                     username = window.localStorage.getItem("loggedAs");
-                    style = "style='color:CornflowerBlue;'";
+                    style = "class='cfBlue'"; //CornflowerBlue is not purple
                 }
-                $chatThing.append("<p><span id='chatMsgId" + i + "' " + style + " data-uname='" + username + "'>@" + username + " </span> <time class='timeago' " + style + " datetime='" + arr[i].on + "'>" + arr[i].on + "</time>:</p> <p>" + arr[i].msg + "<p>");
+                //so this went away:
+                //<span id='chatMsgId" + i + "'  data-uname='" + username + "'>@" + username + " </span>
+                $chatThing.append("<div " + style + "><p><time class='timeago miniTago' " + style + " datetime='" + arr[i].on + "'>" + arr[i].on + "</time></p> <p>" + arr[i].msg + "<p></div>");
             }
 
             jQuery("time.timeago").timeago();
@@ -669,8 +696,28 @@ var app = {
                 if (arr[i].fullIPage == 1) {
                     theImg = '<img class="imagesThatAppearInModals" src="' + arr[i].imgpath + '" >';
                 }
-                $("#dasModal").append("<div class='fSvgResH'>" + theImg + " <p class='fSvgResD' id='mSvgResD" + i + "'> <br/> " + arr[i].idesc + "</p> <p class='fSvgResCL' style='font-size:0.7rem' id='mSvgResCL" + i + "' data-img='" + arr[i].imgpath + "' data-i='" + i + "'>[[ " + arr[i].commentsC + " comments. ]]</p> <div id='modalComments" + i + "' class='feedCommentsHolder'>");
+                window.localStorage.setItem('seePostResName', arr[i].feedUName)
+                if(!arr[i].idesc.isEmpty())
+                {
+                  line = " - ";
+                }
+                else
+                {
+                  line = "";
+                }
+                $("#dasModal").append("<div class='fSvgResH'>" + theImg + " <p class='fSvgResD' id='mSvgResD" + i + "' data-profile='"+ arr[i].feedUName +"'> @"+ arr[i].feedUName + line +"<br/> " + arr[i].idesc + "</p> <p class='fSvgResCL' style='font-size:0.7rem' id='mSvgResCL" + i + "' data-img='" + arr[i].imgpath + "' data-i='" + i + "'>[[ " + arr[i].commentsC + " comments. ]]</p> <div id='modalComments" + i + "' class='feedCommentsHolder'>");
 
+                $("#mSvgResD"+ i).click(function () {
+
+                    var arr = { canYou: "showMeSomeProfile", myName: window.localStorage.getItem("loggedAs"), seeProfile: window.localStorage.getItem("seePostResName"), tracker: window.localStorage.getItem("tracker"), uuid: device.uuid, devModel: device.version, devPlatform: device.platform, proffset: window.localStorage.getItem("mproffset") };
+                    identify(arr);
+
+                    $modal = $('.modal-frame');
+                    $overlay = $('.modal-overlay');
+                    $overlay.removeClass('state-show');
+                    $modal.removeClass('state-appear').removeClass('state-leave');
+
+                });
 
                 var carr = arr[i].commentsForUrDelight;
                 for (n in carr) {
@@ -962,6 +1009,18 @@ var app = {
 
         if (typeof obj.feedRes != "undefined") {
             var arr = obj.feedRes;
+            if(document.getElementById("bins"))
+            {
+              tva=document.getElementById("bins").innerHTML;
+            }
+            else {
+              tva="";
+            }
+            console.log( arr[0].toString());
+            if ((window.localStorage.getItem('lastFeed') === null || window.localStorage.getItem('lastFeed') !== JSON.stringify(arr[0])) || tva == "")
+            {
+              window.localStorage.setItem('lastFeed', JSON.stringify(arr[0]));
+
 
             function calcDistance(x1, y1, x2, y2) {
                 return Math.sqrt(Math.pow((x1 - x2), 2) + Math.pow((y1 - y2), 2));
@@ -984,7 +1043,7 @@ var app = {
                 var s = Snap("#FeedSVG" + i);
                 s.clear();//just add this piece of magic....
                 var myImg = s.image(iURI, ix, iy, iw, ih);
-                var myRect = s.rect(ix, iy, iw, ih);
+                var myRect = s.rect(ix, iy, iw, ih).attr({fill:"rgba(255,255,255,0)"});
 
                 var mask1 = s.path(m1).attr({ fill: "white" });
                 var mask2 = s.path(m2).attr({ fill: "white" });
@@ -1038,7 +1097,7 @@ var app = {
                       myRect.transform('T' + diffX + ',' + diffY + 'S' + scaleF + 'R' + ang);
                       checkSize();
                     }
-                    if(bb.height < 93)
+                    if(bb.height < 150)
                     {
                       scaleF = scaleF + 0.02;
                       finalGroup.transform('T' + diffX + ',' + diffY + 'S' + scaleF + 'R' + ang);
@@ -1068,7 +1127,8 @@ var app = {
                   var bb = myRect.getBBox();
                 tH = tH + bb.height;
                 transformVar = myRect.attr("transform");
-
+                if(window.localStorage.getItem("newFeedToggle") == 1)
+                {
                 var soTheSveGeIs = '<svg width="77px" height="100px" viewBox="-5 -5 305 398" preserveAspectRatio="xMinYMin" >'+
                 '<defs>'+
                 '<clipPath id="clipPath0"> <path d="'+m1+'" ></path> </clipPath>'+
@@ -1090,14 +1150,14 @@ var app = {
                 '</g>'+
                 '</svg>';
                 //console.log(soTheSveGeIs);
-//
+                //
 
-                canvg(document.getElementById('workCanvas'), soTheSveGeIs);
+                //canvg(document.getElementById('workCanvas'), soTheSveGeIs);
 
 
-                var timg = document.getElementById('workCanvas').toDataURL("image/jpeg");
+                //var timg = document.getElementById('workCanvas').toDataURL("image/jpeg");
 
-                var rimg = new Image(),
+                /*var rimg = new Image(),
                 scale = 1;
                 rimg.crossOrigin = 'anonymous';
                 rimg.src = timg;
@@ -1105,7 +1165,7 @@ var app = {
                   //potrace.turnPolicy = 2;
                   veridicScaleF = scaleF;
 
-                  if(scaleF > 2 && scaleF < 10)
+                  if(scaleF > 4 && scaleF < 10)
                   {
                     veridicScaleF = 1 + (scaleF/10)
                   }
@@ -1128,6 +1188,7 @@ var app = {
                   {
                     console.log(resDefsPool);
                     console.log(resPool);
+                    mw=window.localStorage.getItem('feedWidth');
                       newFeed = document.getElementById('feedRes').innerHTML = "<div id='select'> </div> <div id='bins'> </div>";
                       var myContraption=''+
                       '<?xml version="1.0" encoding="utf-8"?>'+
@@ -1135,9 +1196,9 @@ var app = {
                       '	<!ENTITY ns_svg "http://www.w3.org/2000/svg">'+
                       '	<!ENTITY ns_xlink "http://www.w3.org/1999/xlink">'+
                       ']>'+
-                      '<svg  version="1.1" id="Layer_1" class="feedLayer" xmlns="&ns_svg;" xmlns:xlink="&ns_xlink;" overflow="visible" xml:space="preserve" style="height: '+ parseInt(tH) +'px;">'+
+                      '<svg  version="1.1" id="Layer_1" class="feedLayer" xmlns="&ns_svg;" xmlns:xlink="&ns_xlink;" overflow="hidden" xml:space="preserve" >'+
                       '<defs></defs>'+
-                      '<rect x="0" y="0" width="340" height="'+parseInt(tH)+'" id="bin" fill="white"> </rect>'+
+                      '<rect x="0" y="0" width="'+ mw +'" height="'+parseInt(tH)+'" id="bin" fill="white"> </rect>'+
                       resPool +
                       '</svg>';
                       //ok so this is the place where we'll place the svgNest
@@ -1179,40 +1240,22 @@ var app = {
 
               			// button clicks
 
-
+                    var iterations = 0;
               			var isworking = false;
-                    /*
-              			start.onclick = function(){
-              				if(this.className == 'button start disabled'){
-              					return false;
-              				}
-              				iterations = 0;
-              				if(isworking){
-              					stopnest();
-              				}
-              				else{
-              					startnest();
-              				}
-
-              				display.className = 'disabled';
-              				//document.getElementById('info_time').setAttribute('style','display: none');
-              			};
-                    */
               			function startnest(){
               				SvgNest.start(progress, renderSvg);
-              				startlabel.innerHTML = 'Stop Nest';
-
               				var svg = document.querySelector('#select svg');
-              				/*if(svg){
-              					svg.removeAttribute('style');
-              				}*/
               				isworking = true;
               			}
+                    if(iterations > 1)
+                    {
+                      stopnest();
+                    }
 
               			function stopnest(){
               				SvgNest.stop();
               				isworking = false;
-                      if(iterations == 2)
+                      if(iterations > 0)
                       {
                         console.log("ok we can assume control!");
                         iterations = 0;
@@ -1221,7 +1264,7 @@ var app = {
 
                         //var height = document.getElementById("FeedSVG" + i).clientHeight;
                         var s = Snap("#Layer_1");
-
+                        maxTy = 0;
                         function awe (iuri, iX, iY, iW, iH, msk1, msk2, k, ang)
                         {
                             var myImg = s.image(iuri, iX, iY, iW, iH);
@@ -1229,36 +1272,13 @@ var app = {
                             var mask1 = s.path(msk1).attr({ fill: "white" });
                             var mask2 = s.path(msk2).attr({ fill: "white" });
 
-
                             editGroup = s.select('#nested'+k)
-                            //var matrixObj = new Snap.Matrix();
-                            /*
-                            matrixObj = editGroup.transform();
-                            alert (matrixObj);
-                            finalGroup.transform(matrixObj);
-                            */
+
                             maxWidth = window.localStorage.getItem("feedWidth");
-                            //var tOscaleF = iSF / 10 ;
-
-                            //absXCenter = (width / 2);
-                            //absYCenter = (height / 2);
-
-                            //var bb = finalGroup.getBBox();
-                            //var diffX = absXCenter - bb.cx;
-                            //var diffY = absYCenter - bb.cy;
-
-                            //finalGroup.transform('T ' + ',' + k*200 + 'S' + scaleF + 'R' + 0);
                             var maskGroups = s.group()
-
                             maskGroups.add(mask1);
-                            maskGroups.attr({ fill: "white" });
-
+                            maskGroups.attr({ fill: "white" })
                             finalGroup = s.group(maskGroups, myImg);
-
-
-
-
-
                             bb = finalGroup.getBBox();
                             ebb = editGroup.getBBox();
                             var tx = ebb.cx - bb.cx;
@@ -1268,11 +1288,26 @@ var app = {
                             matrixObj = editGroup.transform().localMatrix.split();
                             var rstr = matrixObj.rotate;
 
+
+
                             finalGroup.transform('T ' + tx + ',' + ty + 'S' + scaleF + 'R' + ang);
 
                                   scaleF = ebb.w / bb.w;
 
                             finalGroup.transform('T ' + tx + ',' + ty + 'S' + scaleF + 'R' + rstr);
+                            if(ty > maxTy)
+                            {
+                              maxTy = ty;
+                            }
+                            finalGroup.data({ "data-img": (iuri.substr(iuri.lastIndexOf('/') + 1)) });
+                            finalGroup.click(
+                                function () {
+                                    window.localStorage.setItem('history', 'feed');
+                                    bringInThePostSeeWindow(this.data("data-img"));
+                                }
+                            );
+
+
 
 
 
@@ -1280,31 +1315,41 @@ var app = {
 
                             myImg.attr({ clipPath : mask2 });
 
-
-                              //editGroup.add(finalGroup);
-                            //myImg.attr({ mask: maskGroups });
-                            //myRect.attr({mask:maskGroups});
-                            //maskGroups.attr({ mask: mask2 });
-
-                            //maxWidth = width;
-                            //var scaleF = maxWidth / iw;
-                            //var tOscaleF = scaleF / 10 ;
-                            //lftDis = itx * scaleF;
-                            //topDis = ity * scaleF;
-                            //absXCenter = (width / 2);
-                            //absYCenter = (height / 2);
-
-                            //var bb = finalGroup.getBBox();
-                            //var diffX = absXCenter - bb.cx;
-                            //var diffY = absYCenter - bb.cy;
-
-                            //finalGroup.transform('T' + diffX + ',' + diffY + 'S' + scaleF + 'R' + ang);
                         }
                         var arr2 = obj.feedRes
                         for (k in arr2)
                         {
                           //welderEmbeddedFP(arr2[i].imgH, arr[i].imgW, arr[i].imgX, arr[i].imgY, arr[i].imgpath, arr[i].mask1, arr[i].mask2, arr[i].angle, arr[i].scale, arr[i].tx, arr[i].ty, i, arr[i].feedUName);
-                          awe (arr2[k].imgpath, arr2[k].imgX, arr2[k].imgY, arr2[k].imgW, arr2[k].imgH, arr2[k].mask1, arr2[k].mask2, k, arr2[k].angle)
+                          awe (arr2[k].imgpath, arr2[k].imgX, arr2[k].imgY, arr2[k].imgW, arr2[k].imgH, arr2[k].mask1, arr2[k].mask2, k, arr2[k].angle);
+                          if (k == arr2.length-1)
+                          {
+                            maxHeight = maxTy+250;
+                            $("#Layer_1").css({ "height": maxHeight + "px" });
+                            maxWidth = window.localStorage.getItem("feedWidth");
+                            shape = document.getElementById("Layer_1");
+                            shape.setAttribute("viewBox", "0 0 "+ maxWidth +" "+ maxHeight);
+
+
+
+
+                            function getMessage(messages) {
+                                return messages[Math.floor(Math.random() * messages.length)];
+                            }
+
+                            var nDescStrng = ["I Want More", "nah, not enough", "MORE!", "[[click here for more]]", "this is where you click", "**kollaj is a meme**", "just tap here", "DO NOT PRESS THE BUTTON"];
+                            myRandFubar = getMessage(nDescStrng);
+
+                            $("#feedRes").append("<div id='growMyFeed' class='fSvgResH'> <p class='fSvgResUn'> " + myRandFubar + " </p> </div>");
+                            $("#growMyFeed").click(function () {
+                              stopnest();
+                              croffset = window.localStorage.getItem("roffset");
+                              croffset++;
+                              croffset = window.localStorage.setItem("roffset", croffset);
+                                var arr = { canYou: "showMeMyFeed", myName: window.localStorage.getItem("loggedAs"), tracker: window.localStorage.getItem("tracker"), uuid: device.uuid, devModel: device.version, devPlatform: device.platform, roffset: window.localStorage.getItem("roffset") };
+                                identify(arr);
+                            })
+
+                          }
                         }
 
 
@@ -1312,53 +1357,6 @@ var app = {
 
                       }
               			}
-
-              			// config
-                    /*
-              			var configvisible = false;
-              			configbutton.onclick = function(){
-              				if(this.className == 'button config disabled'){
-              					return false;
-              				}
-              				if(!configvisible){
-              					config.className = 'active';
-              					configbutton.className = 'button close';
-              				}
-              				else{
-              					config.className = '';
-              					configbutton.className = 'button config';
-              				}
-              				configvisible = !configvisible;
-
-              				return false;
-              			}*/
-
-              			/*
-                    configsave.onclick = function(){
-              				var c = {};
-              				var inputs = document.querySelectorAll('#config input');
-              				for(var i=0; i<inputs.length; i++){
-              					var key = inputs[i].getAttribute('data-config');
-              					if(inputs[i].getAttribute('type') == 'text'){
-              						c[key] = inputs[i].value;
-              					}
-              					else if(inputs[i].getAttribute('type') == 'checkbox'){
-              						c[key] = inputs[i].checked;
-              					}
-              				}
-
-              				window.SvgNest.config(c);
-
-              				// new configs will invalidate current nest
-              				if(isworking){
-              					stopnest();
-              				}
-              				configvisible = false;
-              				config.className = '';
-              				return false;
-              			}
-                    */
-
 
               			function startNesting(esVeGe){
               			try{
@@ -1388,15 +1386,7 @@ var app = {
               				}
               				if (!isworking)
               				{
-              				iterations = 0;
-              				isworking = false ;
-              				SvgNest.start(progress, renderSvg);
-              				var svg = document.querySelector('#select svg');
-              				/*if(svg){
-              					svg.removeAttribute('style');
-              				}*/
-
-              				isworking = true;
+              				startnest()
               				alert ("startingnest");
               				}
               			}
@@ -1405,6 +1395,7 @@ var app = {
               			var startTime = null;
 
               			function progress(percent){
+
               				var transition = percent > prevpercent ? '; transition: width 0.1s' : '';
                       console.log(Math.round(percent*100)+'% ');
               				//document.getElementById('info_progress').setAttribute('style','width: '+Math.round(percent*100)+'% ' + transition);
@@ -1434,11 +1425,16 @@ var app = {
               				}
               			}
 
-              			var iterations = 0;
+              			//var iterations = 0;
 
               			function renderSvg(svglist, efficiency, numplaced){
               				iterations++;
+                      if(iterations > 3)
+                      {
+                        stopnest();
+                      }
                       console.log("iteration: "+iterations);
+
               				//document.getElementById('info_iterations').innerHTML = iterations;
 
               				if(!svglist || svglist.length == 0){
@@ -1465,10 +1461,10 @@ var app = {
               				//display.setAttribute('style','display: none');
               				//download.className = 'button download animated bounce';
 
-              				if(isworking && iterations == 1){
+              				if(isworking && iterations >= 2){
               					stopnest();
 
-              					var c = {
+              					/*var c = {
               						clipperScale: 10000000,
               						curveTolerance: 0.3,
               						spacing: 10,
@@ -1480,22 +1476,26 @@ var app = {
               					};
 
               					window.SvgNest.config(c);
-
+                        */
               					// new configs will invalidate current nest
 
-              					SvgNest.start(progress, renderSvg);
-              					var svg = document.querySelector('#select svg');
+              					//SvgNest.start(progress, renderSvg);
+              					//var svg = document.querySelector('#select svg');
               					/*if(svg){
               						svg.removeAttribute('style');
-              					}*/
+              					} *-/
               					alert ("gonna take a break!")
               					isworking = true;
               				}
-              				if(isworking && iterations == 2){
+              				if(isworking && iterations > 1){
               					stopnest();
               					alert ("ok, stopping");
-              					console.log(svg);
+              					//console.log(svg);
               				}
+                      if(iterations > 1)
+                      {
+                        stopnest();
+                      }
 
               			}
 
@@ -1536,12 +1536,12 @@ var app = {
 
                   }
                 }
-                console.log("try "+i);
+                console.log("try "+i);*/
+                //$("#feedRes").append('<img style="max-width:100%; max-height:100%; position:relative;" src="'+timg+'"/>');
+                }
+                //                console.log(resPool);
 
-//                console.log(resPool);
 
-
-               $("#feedRes").append('<img style="max-width:100%; max-height:100%; position:relative;" src="'+timg+'"/>');
                 //  console.log(soTheSveGeIs)
 
                 moveGroup = s.group(finalGroup);
@@ -1741,6 +1741,7 @@ var app = {
                 identify(arr);
             })
 
+            }
         }
 
         if (typeof obj.thePpzDatVibedDatCut != "undefined") {
@@ -4487,6 +4488,9 @@ var app = {
                             if (
                               window.localStorage.getItem("lastPhotoUploadFName") != (myImg.data("imgURI").substr(myImg.data("imgURI").lastIndexOf('/') + 1))
                             ) {
+                              //ok, so now we actually pass matrix distaceX & distanceY!
+                              myRandomGuess = myImg.transform().localMatrix.split();
+                              console.log(myRandomGuess);
                                 uploadPhoto(
                                 myImg.data("imgH"),
                                 myImg.data("imgW"),
@@ -4497,8 +4501,8 @@ var app = {
                                 myImg.data("maskF2"),
                                 myImg.data("scale"),
                                 myImg.data("angle"),
-                                myImg.data("tx"),
-                                myImg.data("ty"),
+                                myRandomGuess.dx,
+                                myRandomGuess.dy,
                                 nextPager);
                                 $("#uploadMyPic").off("touchend mouseup");
                             }
