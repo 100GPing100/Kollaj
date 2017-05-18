@@ -464,7 +464,7 @@ var app = {
                     if(firstOfKind == 0)
                     {
                       firstOfKind=1;
-                      $("#contactNameFbar").html("#" + username);
+                      $("#contactNameFbar").html("@" + username);
 
                     }
                 }
