@@ -441,7 +441,7 @@ float: left;
 padding:0.5em;
 color:crimson;
 clear: both; /*this is here but not on cfBlue.. if it actually breaks smth yeah, we add it there as well. But for now I only see it create a coool effect! */
-word-break: break-all;
+
 word-wrap: break-word;
 }
 .cfBlue
@@ -455,7 +455,7 @@ max-width: 75%;
 float: right;
 padding:0.5em;
 color: darkblue;
-word-break: break-all;
+
 word-wrap: break-word;
 }
 
