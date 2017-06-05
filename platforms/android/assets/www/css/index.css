@@ -420,11 +420,67 @@ input[type="checkbox"]:checked + label:before {
 #chatbox
 {
   position: absolute;
-  height: 80%;
+  height: 70%;
+  top: 4em;
   width:100%;
   overflow-y: scroll;
   z-index:2500;
+  background: -webkit-linear-gradient(to bottom, #fff 17%, #fafafa 97%,#eaeaea 100%);
+  background: linear-gradient(to bottom, #fff 17%, #fafafa 97%,#eaeaea 100%);
 }
+
+.crimson
+{
+border: 1px solid crimson;
+border-radius: 12px 12px 12px 0;
+margin-bottom: 0.75em;
+margin-top: 0.75em;
+text-align: left;
+max-width: 75%;
+float: left;
+padding:0.5em;
+color:crimson;
+clear: both; /*this is here but not on cfBlue.. if it actually breaks smth yeah, we add it there as well. But for now I only see it create a coool effect! */
+
+word-wrap: break-word;
+}
+.cfBlue
+{
+border: 1px solid CornflowerBlue;
+border-radius: 12px 12px 0 12px;
+margin-bottom: 0.75em;
+margin-top: 0.75em;
+text-align: right;
+max-width: 75%;
+float: right;
+padding:0.5em;
+color: darkblue;
+
+word-wrap: break-word;
+}
+
+.miniTago
+{
+color: #666;
+font-size: 0.9em;
+}
+
+#cnameBox
+{
+
+    position: absolute;
+    width: 100%;
+    height: 1rem;
+    top: 3rem;
+    z-index: 4500;
+    background: #fafafa;
+    padding: 1em 2em;
+    color: crimson;
+    border-bottom: 4px solid crimson;
+    /* -webkit-box-shadow: 0px -3px 73px 0px rgba(61,73,89,0.5); */
+    box-shadow: 0px 2px 63px 0px rgba(61,73,89,0.5);
+}
+
 #writeBox
 {
   position:absolute;
@@ -1037,7 +1093,7 @@ text-shadow: 1px -1px 0 #767676, -1px 2px 1px #737272, -2px 4px 1px #767474, -3p
 #profileInfo
 {
   width:100%;
-  position:absolute;
+  position:fixed;
   color: #003440;
   text-align: center;
   line-height:3em;
@@ -1603,15 +1659,16 @@ float: left;
 
 .feedCommentBtn
 {
-  background:white;
-  text-align: center;
-  display: block;
-  width: 4.2rem;
-  font-size: 1em;
-  margin: 0.5rem auto;
-  padding-bottom: 0.2rem;
-  border:none;
-  border-bottom: 0.1rem solid #a9a9a9;
+  background: white;
+      text-align: center;
+      display: block;
+      width: 5.2rem;
+      font-size: 1em;
+      margin: 0.5rem auto;
+      padding-bottom: 0.2rem;
+      border: none;
+      padding: 0.5em;
+      border-bottom: 0.1rem solid #a9a9a9;
 }
 
 #growMyFeed

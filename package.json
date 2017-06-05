@@ -8,7 +8,6 @@
         ],
         "plugins": {
             "cordova-libgoogleadmobads": {},
-            "cordova-plugin-admobpro": {},
             "cordova-plugin-battery-status": {},
             "cordova-plugin-camera": {},
             "cordova-plugin-compat": {},
@@ -27,13 +26,16 @@
             "cordova-plugin-statusbar": {},
             "cordova-plugin-vibration": {},
             "cordova-plugin-whitelist": {},
-            "cordova-plugin-file": {}
+            "cordova-plugin-file": {},
+            "cordova-plugin-admobpro": {}
         }
     },
     "dependencies": {
+        "browser-sync": "^2.18.12",
+        "cheerio": "^1.0.0-rc.1",
         "cordova-android": "^6.2.3",
         "cordova-libgoogleadmobads": "7.13.1",
-        "cordova-plugin-admobpro": "2.28.3",
+        "cordova-plugin-admobpro": "^2.29.0",
         "cordova-plugin-battery-status": "~1.1.1",
         "cordova-plugin-camera": "~2.1.1",
         "cordova-plugin-compat": "^1.1.0",
@@ -42,7 +44,7 @@
         "cordova-plugin-device": "~1.1.1",
         "cordova-plugin-device-orientation": "~1.0.2",
         "cordova-plugin-dialogs": "~1.2.0",
-        "cordova-plugin-extension": "1.5.1",
+        "cordova-plugin-extension": "^1.5.1",
         "cordova-plugin-file": "^4.3.3",
         "cordova-plugin-file-transfer": "~1.5.0",
         "cordova-plugin-globalization": "~1.0.3",
@@ -52,6 +54,10 @@
         "cordova-plugin-network-information": "~1.2.0",
         "cordova-plugin-statusbar": "~2.1.2",
         "cordova-plugin-vibration": "~2.1.0",
-        "cordova-plugin-whitelist": "~1.2.1"
+        "cordova-plugin-whitelist": "~1.2.1",
+        "csp-parse": "0.0.2",
+        "elementtree": "^0.1.7",
+        "glob": "^7.1.2",
+        "plist": "^2.1.0"
     }
 }

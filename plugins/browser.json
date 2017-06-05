@@ -61,9 +61,6 @@
         "cordova-plugin-browsersync": {
             "PACKAGE_NAME": "net.kollaj"
         },
-        "cordova-plugin-admobpro": {
-            "PACKAGE_NAME": "net.kollaj"
-        },
         "cordova-plugin-crosswalk-webview": {
             "PACKAGE_NAME": "net.kollaj"
         },
@@ -71,6 +68,9 @@
             "PACKAGE_NAME": "net.kollaj"
         },
         "cordova-plugin-file": {
+            "PACKAGE_NAME": "net.kollaj"
+        },
+        "cordova-plugin-admobpro": {
             "PACKAGE_NAME": "net.kollaj"
         }
     },

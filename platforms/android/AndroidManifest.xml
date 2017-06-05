@@ -9,7 +9,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize" android:name="com.google.android.gms.ads.AdActivity" android:theme="@android:style/Theme.Translucent" />
         <service android:name="org.apache.cordova.firebase.FirebasePluginMessagingService">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
@@ -21,6 +20,7 @@
             </intent-filter>
         </service>
         <receiver android:name="org.apache.cordova.firebase.OnNotificationOpenReceiver" />
+        <activity android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize" android:name="com.google.android.gms.ads.AdActivity" android:theme="@android:style/Theme.Translucent" />
     </application>
     <uses-sdk android:maxSdkVersion="25" android:minSdkVersion="16" android:targetSdkVersion="16" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />

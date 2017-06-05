@@ -389,14 +389,6 @@ module.exports = [
         ]
     },
     {
-        "file": "plugins/cordova-plugin-admobpro/www/AdMob.js",
-        "id": "cordova-plugin-admobpro.AdMob",
-        "pluginId": "cordova-plugin-admobpro",
-        "clobbers": [
-            "window.AdMob"
-        ]
-    },
-    {
         "file": "plugins/cordova-plugin-firebase/www/firebase-browser.js",
         "id": "cordova-plugin-firebase.FirebasePlugin",
         "pluginId": "cordova-plugin-firebase",
@@ -582,6 +574,14 @@ module.exports = [
         "merges": [
             "window.FileSystem"
         ]
+    },
+    {
+        "file": "plugins/cordova-plugin-admobpro/www/AdMob.js",
+        "id": "cordova-plugin-admobpro.AdMob",
+        "pluginId": "cordova-plugin-admobpro",
+        "clobbers": [
+            "window.AdMob"
+        ]
     }
 ];
 module.exports.metadata = 
@@ -606,11 +606,11 @@ module.exports.metadata =
     "cordova-plugin-whitelist": "1.2.2",
     "cordova-plugin-browsersync": "0.1.1",
     "cordova-plugin-compat": "1.1.0",
-    "cordova-plugin-extension": "1.5.1",
-    "cordova-plugin-admobpro": "2.28.3",
     "cordova-plugin-crosswalk-webview": "2.3.0",
     "cordova-plugin-firebase": "0.1.20",
-    "cordova-plugin-file": "4.3.3"
+    "cordova-plugin-file": "4.3.3",
+    "cordova-plugin-extension": "1.5.1",
+    "cordova-plugin-admobpro": "2.29.0"
 }
 // BOTTOM OF METADATA
 });

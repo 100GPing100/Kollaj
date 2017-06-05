@@ -10,6 +10,7 @@
         <icon src="www/res/icon/android/drawable-mdpi-icon.png" />
     </platform>
     <platform name="android">
+        <allow-intent href="market:*" />
         <icon density="ldpi" src="www/res/icon/android/drawable-ldpi-icon.png" />
         <icon density="mdpi" src="www/res/icon/android/drawable-mdpi-icon.png" />
         <icon density="hdpi" src="www/res/icon/android/drawable-hdpi-icon.png" />
@@ -86,9 +87,6 @@
     <allow-intent href="sms:*" />
     <allow-intent href="mailto:*" />
     <allow-intent href="geo:*" />
-    <platform name="android">
-        <allow-intent href="market:*" />
-    </platform>
     <platform name="ios">
         <allow-intent href="itms:*" />
         <allow-intent href="itms-apps:*" />
@@ -101,7 +99,7 @@
     <preference name="android-maxSdkVersion" value="25" />
     <engine name="android" spec="^6.2.3" />
     <plugin name="cordova-libgoogleadmobads" spec="7.13.1" />
-    <plugin name="cordova-plugin-admobpro" spec="2.28.3" />
+    <plugin name="cordova-plugin-admobpro" spec="^2.29.0" />
     <plugin name="cordova-plugin-battery-status" spec="~1.1.1" />
     <plugin name="cordova-plugin-camera" spec="~2.1.1" />
     <plugin name="cordova-plugin-compat" spec="^1.1.0" />
@@ -110,7 +108,7 @@
     <plugin name="cordova-plugin-device" spec="~1.1.1" />
     <plugin name="cordova-plugin-device-orientation" spec="~1.0.2" />
     <plugin name="cordova-plugin-dialogs" spec="~1.2.0" />
-    <plugin name="cordova-plugin-extension" spec="1.5.1" />
+    <plugin name="cordova-plugin-extension" spec="^1.5.1" />
     <plugin name="cordova-plugin-file" spec="^4.3.3" />
     <plugin name="cordova-plugin-file-transfer" spec="~1.5.0" />
     <plugin name="cordova-plugin-globalization" spec="~1.0.3" />

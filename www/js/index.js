@@ -26,32 +26,13 @@ var app = {
     // Bind any events that are required on startup. Common events are:
     // 'load', 'deviceready', 'offline', and 'online'.
     bindEvents: function () {
-        document.addEventListener('deviceready', this.onDeviceReady, false);
-        document.addEventListener('deviceready', () => {
-            window.FirebasePlugin.onNotificationOpen((notification) => {
-                console.log(":onNotificationOpen", notification);
-            }, (error) => {
-                console.error(error);
-            });
-            console.log("hello worasdasd");
-            window.FirebasePlugin.onTokenRefresh((token) => {
-                /*console.log("firebase ref: ", token);
-                console.log("loggedAs ref: ", window.localStorage.getItem("loggedAs"));
-                console.log("tracker  ref: ", window.localStorage.getItem("tracker"));*/
-                kollaj_firebaseRefresh(
-                    window.localStorage.getItem("loggedAs"),
-                    window.localStorage.getItem("tracker"),
-                    token,
-                    (data) => {/*
-                        console.log("cb ref: ", data);
-                        console.log("loggedAs cbref: ", window.localStorage.getItem("loggedAs"));
-                        console.log("tracker  cbref: ", window.localStorage.getItem("tracker"));*/
-                        this.onDeviceReady();
-                    });
-            }, (error) => {
-                console.log(":onTokenRefresh [error]: ", error);
-            })
-        }, false);
+        window.FirebasePlugin.onNotificationOpen((notification) => {
+            console.log(":onNotificationOpen", notification);
+        }, (error) => {
+            console.error(":onNotificationOpen [error]: " + error);
+        });
+
+        document.addEventListener('deviceready', this.onDeviceReady, false);;
     },
     // deviceready Event Handler
     //
@@ -66,6 +47,14 @@ var app = {
 
         jQuery(document).ready(function () {
             jQuery("time.timeago").timeago();
+        });
+
+        kollaj_firebaseRefresh(
+            window.localStorage.getItem("loggedAs"),
+            window.localStorage.getItem("tracker"),
+            window.localStorage.getItem("firebase"),
+            (data) => {
+                console.log(":firebaseRefresh.callback() " + data);
         });
 
         var vTimeOut;
@@ -4912,8 +4901,20 @@ var app = {
                             window.localStorage.setItem('modal', 0);
                             window.localStorage.setItem('historyPMen', window.localStorage.getItem("loggedAs"));
                             //console.log("profile-sign-out opt!");
-                            var arr = { canYou: "sayBye", myName: window.localStorage.getItem("loggedAs"), tracker: window.localStorage.getItem("tracker"), uuid: device.uuid, devModel: device.version, devPlatform: device.platform };
-                            identify(arr);
+                            kollaj_logout(
+                                window.localStorage.getItem("loggedAs"),
+                                window.localStorage.getItem("tracker"),
+                                (data) => {
+                                    var arr = {
+                                        canYou: "sayBye",
+                                        myName: window.localStorage.getItem("loggedAs"),
+                                        tracker: window.localStorage.getItem("tracker"),
+                                        uuid: device.uuid,
+                                        devModel: device.version,
+                                        devPlatform: device.platform
+                                    };
+                                    identify(arr);
+                                });
                             return false;
                         }
                     });

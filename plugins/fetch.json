@@ -167,14 +167,6 @@
         "is_top_level": true,
         "variables": {}
     },
-    "cordova-plugin-admobpro": {
-        "source": {
-            "type": "registry",
-            "id": "cordova-plugin-admobpro@2.28.3"
-        },
-        "is_top_level": true,
-        "variables": {}
-    },
     "cordova-plugin-crosswalk-webview": {
         "source": {
             "type": "registry",
@@ -195,6 +187,14 @@
         "source": {
             "type": "registry",
             "id": "cordova-plugin-file"
+        },
+        "is_top_level": true,
+        "variables": {}
+    },
+    "cordova-plugin-admobpro": {
+        "source": {
+            "type": "registry",
+            "id": "cordova-plugin-admobpro@^2.29.0"
         },
         "is_top_level": true,
         "variables": {}

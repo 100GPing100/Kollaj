@@ -38,10 +38,21 @@ function btnLogin_onclick() {
 
 var app = {
     initialize: function() {
-        document.addEventListener(
-            'deviceready',
-            this.onDeviceReady,
-            false);
+        document.addEventListener('deviceready', () => {
+            if (device.platform == "browser") {
+                console.log("Warning: You're on a browser, Firebase is disabled");
+                app.onDeviceReady();
+                return;
+            }
+
+            window.FirebasePlugin.onTokenRefresh((token) => {
+                window.localStorage.setItem("firebase", token);
+
+                app.onDeviceReady();
+            }, (error) => {
+                console.log(":onTokenRefresh [error]: ", error);
+            });
+        }, false);
     },
 
     onDeviceReady: function() {
@@ -94,7 +105,7 @@ var app = {
                         }
                     }
                 });
-                
+
             return true;
         });*/
 
@@ -130,7 +141,7 @@ var app = {
             $(this).css(userPass
                 ? { background: 'rgba(0,255,0,0.4)' }
                 : { background: 'rgba(255,0,0,0.4)' });
-            
+
             if (userPass) {
                 kollaj_usernameCheck(
                     username,
@@ -164,7 +175,7 @@ var app = {
                             console.log("Failed to register [" + data.error + "]");
                             return;
                         }
-                        
+
                         window.localStorage.setItem("loggedAs", data.username);
                         window.localStorage.setItem("tracker", data.tracker);
                         window.localStorage.setItem("kollajDistance", data.kollajDistance);

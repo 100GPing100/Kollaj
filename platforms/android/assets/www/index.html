@@ -346,8 +346,7 @@ pps:omg loooooooook here -v HAHAHHAHAHAHAHAHHA proof this shit's #since2016 OMG 
           <div id="vibeView"></div>
           <div id="picViewer"> </div>
           <div id="feedRes" >
-            <div id="resPool">
-            </div>
+            <div id="resPool"></div>
           </div>
          </div>
 
@@ -594,11 +593,20 @@ pps:omg loooooooook here -v HAHAHHAHAHAHAHAHHA proof this shit's #since2016 OMG 
 
 
         </div>
+
+        <div id="cnameBox">
+
+          <p id="contactNameFbar" > Contact Name </p>
+
+        </div>
+
         <div id="writeBox">
 
           <div id="chatForm" class="feedCommentForm" style="display:block !important;">
-            <input id="chatInput" class="feedCommentInput" data-sendTo="0" type="text" placeholder="You can say something!">
-            <input id="chatButton" class="feedCommentBtn" type="button" value="> send <">
+            <form action="#">
+            <textarea id="chatInput" class="feedCommentInput" data-sendTo="0" type="text" placeholder="You can say something!"></textarea>
+            <input id="chatButton" class="feedCommentBtn" type="submit" value="> send <">
+            </form>
           </div>
 
         </div>
@@ -621,12 +629,12 @@ pps:omg loooooooook here -v HAHAHHAHAHAHAHAHHA proof this shit's #since2016 OMG 
     <script type="text/javascript" src="js/canvg.js"></script>
     <script type="text/javascript" src="js/potrace.js"></script>
     <script type="text/javascript" src="js/util/pathsegpolyfill.js"></script>
-		<script type="text/javascript" src="https://kollaj.net/util/matrix.js"></script>
+		<script type="text/javascript" src="js/util/matrix.js"></script>
 		<script type="text/javascript" src="js/util/domparser.js"></script>
-		<script type="text/javascript" src="https://kollaj.net/util/clipper.js"></script>
+		<script type="text/javascript" src="js/util/clipper.js"></script>
 		<script type="text/javascript" src="js/util/parallel.js"></script>
-		<script type="text/javascript" src="https://kollaj.net/util/geometryutil.js"></script>
-		<script type="text/javascript" src="https://kollaj.net/util/placementworker.js"></script>
+		<script type="text/javascript" src="js/util/geometryutil.js"></script>
+		<script type="text/javascript" src="js/util/placementworker.js"></script>
 		<script type="text/javascript" src="js/svgparser.js"></script>
 		<script type="text/javascript" src="js/svgnest.js"></script>
 		<script type="text/javascript" src="js/util/filesaver.js"></script>
@@ -636,6 +644,11 @@ pps:omg loooooooook here -v HAHAHHAHAHAHAHAHHA proof this shit's #since2016 OMG 
     <script type="text/javascript" src="js/identify.js"></script>
     <!--Start app-->
     <script type="text/javascript">
+
+    String.prototype.isEmpty = function() {
+      return (this.length === 0 || !this.trim());
+    };
+
         app.initialize();
 
         $(function() {

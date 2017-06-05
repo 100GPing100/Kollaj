@@ -1,14 +1,6 @@
 cordova.define('cordova/plugin_list', function(require, exports, module) {
 module.exports = [
     {
-        "id": "cordova-plugin-admobpro.AdMob",
-        "file": "plugins/cordova-plugin-admobpro/www/AdMob.js",
-        "pluginId": "cordova-plugin-admobpro",
-        "clobbers": [
-            "window.AdMob"
-        ]
-    },
-    {
         "id": "cordova-plugin-battery-status.battery",
         "file": "plugins/cordova-plugin-battery-status/www/battery.js",
         "pluginId": "cordova-plugin-battery-status",
@@ -503,14 +495,20 @@ module.exports = [
             "cordova"
         ],
         "runs": true
+    },
+    {
+        "id": "cordova-plugin-admobpro.AdMob",
+        "file": "plugins/cordova-plugin-admobpro/www/AdMob.js",
+        "pluginId": "cordova-plugin-admobpro",
+        "clobbers": [
+            "window.AdMob"
+        ]
     }
 ];
 module.exports.metadata = 
 // TOP OF METADATA
 {
     "cordova-libgoogleadmobads": "7.13.1",
-    "cordova-plugin-extension": "1.5.1",
-    "cordova-plugin-admobpro": "2.28.3",
     "cordova-plugin-battery-status": "1.1.2",
     "cordova-plugin-browsersync": "0.1.1",
     "cordova-plugin-camera": "2.1.1",
@@ -532,7 +530,9 @@ module.exports.metadata =
     "cordova-plugin-vibration": "2.1.3",
     "cordova-plugin-whitelist": "1.2.2",
     "cordova-plugin-firebase": "0.1.20",
-    "cordova-plugin-file": "4.3.3"
+    "cordova-plugin-file": "4.3.3",
+    "cordova-plugin-extension": "1.5.1",
+    "cordova-plugin-admobpro": "2.29.0"
 };
 // BOTTOM OF METADATA
 });
